@@ -1,0 +1,160 @@
+<div class="container py-5">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="mb-3">
+        <i class="fas fa-globe text-primary"></i> Explore Places
+      </h1>
+      <p class="text-muted">Discover amazing destinations and add them to your trips.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <%= link_to "/explore/map", class: "btn btn-outline-primary" do %>
+        <i class="fas fa-map"></i> View Map
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <%= form_with url: explore_path, method: :get, local: true, class: "row g-3" do |form| %>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-filter text-primary"></i> Category
+              </label>
+              <%= form.select :category,
+                  options_for_select([['All Categories', '']] + @categories.map { |c| [c, c] }, params[:category]),
+                  {},
+                  class: "form-select" %>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-map-marker-alt text-success"></i> Region
+              </label>
+              <%= form.select :region,
+                  options_for_select([['All Regions', '']] + @regions.map { |r| [r, r] }, params[:region]),
+                  {},
+                  class: "form-select" %>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-search text-info"></i> Search
+              </label>
+              <%= form.text_field :q,
+                  value: params[:q],
+                  placeholder: "Search places...",
+                  class: "form-control" %>
+            </div>
+            <div class="col-12 text-center">
+              <%= form.submit "Filter Places", class: "btn btn-primary me-2" %>
+              <%= link_to "Clear Filters", explore_path, class: "btn btn-outline-secondary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Places Grid -->
+  <div class="row g-4">
+    <% @places.each do |place| %>
+      <div class="col-lg-4 col-md-6">
+        <div class="card place-card h-100">
+          <img src="<%= place.cover_image_url %>" class="card-img-top" alt="<%= place.name %>" style="height: 200px; object-fit: cover;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h5 class="card-title mb-0"><%= place.name %></h5>
+              <span class="badge bg-primary"><%= place.category %></span>
+            </div>
+            <p class="card-text text-muted"><%= place.description %></p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <small class="text-muted">
+                <i class="fas fa-map-marker-alt"></i> <%= place.region %>
+              </small>
+              <small class="text-muted">
+                <i class="fas fa-video"></i> <%= place.videos.count %> videos
+              </small>
+            </div>
+            <div class="d-flex gap-2">
+              <%= link_to place_path(place), class: "btn btn-outline-primary btn-sm flex-fill" do %>
+                <i class="fas fa-eye"></i> View Details
+              <% end %>
+              <% if user_signed_in? %>
+                <div class="dropdown">
+                  <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-plus"></i> Add to Trip
+                  </button>
+                  <ul class="dropdown-menu">
+                    <% current_user.trips.upcoming.each do |trip| %>
+                      <li>
+                        <%= link_to "Add to #{trip.title}",
+                            add_place_trip_path(trip, place_id: place.id),
+                            method: :post,
+                            class: "dropdown-item" %>
+                      </li>
+                    <% end %>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <%= link_to "Create New Trip",
+                          new_trip_path(place_id: place.id),
+                          class: "dropdown-item" %>
+                    </li>
+                  </ul>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Empty State -->
+  <% if @places.empty? %>
+    <div class="text-center py-5">
+      <i class="fas fa-search text-muted mb-4" style="font-size: 4rem;"></i>
+      <h4 class="text-muted mb-3">No places found</h4>
+      <p class="text-muted mb-4">Try adjusting your filters or search terms.</p>
+      <%= link_to "Clear Filters", explore_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+  <!-- Categories Quick Access -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <h4 class="mb-4">
+        <i class="fas fa-tags text-warning"></i> Browse by Category
+      </h4>
+      <div class="row g-3">
+        <% @categories.each do |category| %>
+          <div class="col-lg-3 col-md-4 col-6">
+            <%= link_to explore_path(category: category), class: "text-decoration-none" do %>
+              <div class="card text-center h-100 category-card">
+                <div class="card-body">
+                  <i class="<%= category_icon(category) %> mb-3" style="font-size: 2rem; color: #667eea;"></i>
+                  <h6 class="card-title"><%= category %></h6>
+                  <small class="text-muted">
+                    <%= Place.by_category(category).count %> places
+                  </small>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.category-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+</style>

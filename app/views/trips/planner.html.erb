@@ -1,0 +1,909 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <!-- Header -->
+      <div class="text-center mb-5">
+        <h1 class="display-4 text-primary mb-3">
+          <i class="fas fa-magic"></i> AI Trip Planner
+        </h1>
+        <p class="lead text-muted">Tell us about your dream trip and our AI will create a personalized itinerary just for you!</p>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress mb-4" style="height: 8px;">
+        <div class="progress-bar bg-primary" role="progressbar" style="width: 25%" id="progress-bar"></div>
+      </div>
+
+      <!-- Trip Summary -->
+      <div class="card mb-4 bg-light">
+        <div class="card-body">
+          <h6 class="card-title mb-2">
+            <i class="fas fa-clipboard-list text-primary"></i> Trip Summary
+          </h6>
+          <div id="trip-summary" class="text-muted small">
+            Fill in the details below to see your trip summary...
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-lg">
+        <div class="card-body p-5">
+          <form id="trip-planner-form" action="/planner" method="post">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+            <!-- Step 1: Basic Trip Details -->
+            <div class="step" id="step-1">
+              <h4 class="mb-4">
+                <i class="fas fa-plane text-primary"></i> Trip Details
+              </h4>
+
+              <div class="row">
+                <!-- Destination -->
+                <div class="col-md-6 mb-3">
+                  <label for="destination" class="form-label fw-bold">
+                    <i class="fas fa-map-marker-alt text-primary"></i> Destination *
+                  </label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="destination" name="destination"
+                           placeholder="Where do you want to go?" required>
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><h6 class="dropdown-header">Popular Destinations</h6></li>
+                      <li><a class="dropdown-item" href="#" onclick="setDestination('Manali')">🏔️ Manali</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setDestination('Bali')">🌴 Bali</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setDestination('Paris')">🗼 Paris</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setDestination('Goa')">🏖️ Goa</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setDestination('Tokyo')">🗾 Tokyo</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="setDestination('New York')">🗽 New York</a></li>
+                    </ul>
+                  </div>
+                  <div class="form-text">
+                    <i class="fas fa-info-circle"></i> Enter a city, country, or region. For multiple destinations, separate with commas.
+                  </div>
+                </div>
+
+                <!-- Duration -->
+                <div class="col-md-6 mb-3">
+                  <label for="duration" class="form-label fw-bold">
+                    <i class="fas fa-calendar text-primary"></i> Duration *
+                  </label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="duration" name="duration"
+                           placeholder="How many days?" min="1" max="30" value="5" required>
+                    <span class="input-group-text">days</span>
+                  </div>
+                  <div class="form-text">
+                    <i class="fas fa-info-circle"></i> Min 1 day, Max 30 days
+                  </div>
+                </div>
+              </div>
+
+              <!-- Travelers -->
+              <div class="row mb-3">
+                <div class="col-12">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-users text-primary"></i> Travelers *
+                  </label>
+                </div>
+                <div class="col-md-4">
+                  <label for="adults" class="form-label small">Adults (18+)</label>
+                  <input type="number" class="form-control" id="adults" name="adults"
+                         placeholder="Adults" min="1" max="10" value="2" required>
+                </div>
+                <div class="col-md-4">
+                  <label for="children" class="form-label small">Children (0-17)</label>
+                  <input type="number" class="form-control" id="children" name="children"
+                         placeholder="Children" min="0" max="10" value="0">
+                </div>
+                <div class="col-md-4">
+                  <label for="infants" class="form-label small">Infants (under 2)</label>
+                  <input type="number" class="form-control" id="infants" name="infants"
+                         placeholder="Infants" min="0" max="5" value="0">
+                </div>
+              </div>
+
+              <!-- Budget -->
+              <div class="row mb-3">
+                <div class="col-md-8">
+                  <label for="budget" class="form-label fw-bold">
+                    <i class="fas fa-wallet text-primary"></i> Budget per Person *
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input type="number" class="form-control" id="budget" name="budget"
+                           placeholder="Your budget" min="1000" value="25000" required>
+                    <select class="form-select" id="currency" name="currency" style="max-width: 100px;">
+                      <option value="INR">INR</option>
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                    </select>
+                  </div>
+                  <div class="form-text">
+                    <i class="fas fa-info-circle"></i> Total estimated budget for everything (flights, accommodation, activities, food)
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card bg-light">
+                    <div class="card-body p-3">
+                      <small class="text-muted">
+                        <i class="fas fa-lightbulb"></i> Budget Guide:
+                      </small>
+                      <div id="budget-guide" class="small mt-1">
+                        Loading...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" onclick="previousStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep()">
+                  Next <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2: Trip Type & Preferences -->
+            <div class="step" id="step-2" style="display: none;">
+              <h4 class="mb-4">
+                <i class="fas fa-heart text-primary"></i> Trip Type & Preferences
+              </h4>
+
+              <!-- Trip Type -->
+              <div class="mb-4">
+                <label class="form-label fw-bold">
+                  <i class="fas fa-tags text-primary"></i> Trip Type *
+                </label>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="trip_type_adventure" name="trip_type[]" value="adventure">
+                      <label class="form-check-label" for="trip_type_adventure">
+                        🏔️ Adventure
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="trip_type_cultural" name="trip_type[]" value="cultural">
+                      <label class="form-check-label" for="trip_type_cultural">
+                        🏛️ Cultural
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="trip_type_relaxation" name="trip_type[]" value="relaxation">
+                      <label class="form-check-label" for="trip_type_relaxation">
+                        🏖️ Relaxation
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="trip_type_romantic" name="trip_type[]" value="romantic">
+                      <label class="form-check-label" for="trip_type_romantic">
+                        💕 Romantic
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="trip_type_family" name="trip_type[]" value="family">
+                      <label class="form-check-label" for="trip_type_family">
+                        👨‍👩‍👧‍👦 Family
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="trip_type_budget" name="trip_type[]" value="budget">
+                      <label class="form-check-label" for="trip_type_budget">
+                        💰 Budget-friendly
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="trip_type_luxury" name="trip_type[]" value="luxury">
+                      <label class="form-check-label" for="trip_type_luxury">
+                        ✨ Luxury
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="trip_type_foodie" name="trip_type[]" value="foodie">
+                      <label class="form-check-label" for="trip_type_foodie">
+                        🍽️ Foodie
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Travel Pace -->
+              <div class="mb-4">
+                <label class="form-label fw-bold">
+                  <i class="fas fa-tachometer-alt text-primary"></i> Travel Pace *
+                </label>
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" id="pace_relaxed" name="travel_pace" value="relaxed">
+                      <label class="form-check-label" for="pace_relaxed">
+                        🐌 Relaxed
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" id="pace_moderate" name="travel_pace" value="moderate" checked>
+                      <label class="form-check-label" for="pace_moderate">
+                        🚶 Moderate
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" id="pace_fast" name="travel_pace" value="fast">
+                      <label class="form-check-label" for="pace_fast">
+                        ⚡ Fast-paced
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Accommodation Preference -->
+              <div class="mb-4">
+                <label for="accommodation" class="form-label fw-bold">
+                  <i class="fas fa-bed text-primary"></i> Accommodation Preference
+                </label>
+                <select class="form-select" id="accommodation" name="accommodation">
+                  <option value="">No preference</option>
+                  <option value="luxury">🏨 Luxury Hotel</option>
+                  <option value="midrange">🏨 Mid-range Hotel</option>
+                  <option value="budget">🏨 Budget Hotel/Hostel</option>
+                  <option value="boutique">🏨 Boutique Hotel</option>
+                  <option value="airbnb">🏠 Airbnb/Homestay</option>
+                </select>
+              </div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" onclick="previousStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep()">
+                  Next <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 3: Interests & Activities -->
+            <div class="step" id="step-3" style="display: none;">
+              <h4 class="mb-4">
+                <i class="fas fa-star text-primary"></i> Interests & Activities
+              </h4>
+
+              <!-- Interests -->
+              <div class="mb-4">
+                <label class="form-label fw-bold">
+                  <i class="fas fa-heart text-primary"></i> What interests you? *
+                </label>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_hiking" name="interests[]" value="hiking">
+                      <label class="form-check-label" for="interest_hiking">
+                        🏔️ Hiking & Trekking
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_beaches" name="interests[]" value="beaches">
+                      <label class="form-check-label" for="interest_beaches">
+                        🏖️ Beaches & Water Sports
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_museums" name="interests[]" value="museums">
+                      <label class="form-check-label" for="interest_museums">
+                        🏛️ Museums & Cultural Sites
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_nightlife" name="interests[]" value="nightlife">
+                      <label class="form-check-label" for="interest_nightlife">
+                        🌃 Nightlife & Entertainment
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_foodie" name="interests[]" value="foodie">
+                      <label class="form-check-label" for="interest_foodie">
+                        🍽️ Food & Dining
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_shopping" name="interests[]" value="shopping">
+                      <label class="form-check-label" for="interest_shopping">
+                        🛍️ Shopping & Retail
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_adventure" name="interests[]" value="adventure">
+                      <label class="form-check-label" for="interest_adventure">
+                        🏄 Adventure Sports
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_wildlife" name="interests[]" value="wildlife">
+                      <label class="form-check-label" for="interest_wildlife">
+                        🦁 Wildlife & Nature
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_spiritual" name="interests[]" value="spiritual">
+                      <label class="form-check-label" for="interest_spiritual">
+                        🧘 Spiritual & Wellness
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="interest_historical" name="interests[]" value="historical">
+                      <label class="form-check-label" for="interest_historical">
+                        🏛️ Historical Sites
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dietary Preferences -->
+              <div class="mb-4">
+                <label class="form-label fw-bold">
+                  <i class="fas fa-utensils text-primary"></i> Dietary Preferences
+                </label>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="dietary_vegetarian" name="dietary[]" value="vegetarian">
+                      <label class="form-check-label" for="dietary_vegetarian">
+                        🥬 Vegetarian
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="dietary_vegan" name="dietary[]" value="vegan">
+                      <label class="form-check-label" for="dietary_vegan">
+                        🌱 Vegan
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="dietary_halal" name="dietary[]" value="halal">
+                      <label class="form-check-label" for="dietary_halal">
+                        🕌 Halal
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="dietary_kosher" name="dietary[]" value="kosher">
+                      <label class="form-check-label" for="dietary_kosher">
+                        ✡️ Kosher
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="dietary_gluten_free" name="dietary[]" value="gluten_free">
+                      <label class="form-check-label" for="dietary_gluten_free">
+                        🌾 Gluten-free
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="dietary_local" name="dietary[]" value="local">
+                      <label class="form-check-label" for="dietary_local">
+                        🍜 Local Cuisine
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" onclick="previousStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="button" class="btn btn-primary" onclick="nextStep()">
+                  Next <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 4: Additional Preferences -->
+            <div class="step" id="step-4" style="display: none;">
+              <h4 class="mb-4">
+                <i class="fas fa-cog text-primary"></i> Additional Preferences
+              </h4>
+
+              <!-- What to Avoid -->
+              <div class="mb-4">
+                <label for="avoid" class="form-label fw-bold">
+                  <i class="fas fa-times-circle text-primary"></i> What to Avoid
+                </label>
+                <textarea class="form-control" id="avoid" name="avoid" rows="3"
+                          placeholder="e.g., Don't want crowded places, Avoid long bus journeys, Not interested in ancient ruins..."></textarea>
+                <div class="form-text">
+                  <i class="fas fa-info-circle"></i> Tell us what you'd prefer to avoid during your trip
+                </div>
+              </div>
+
+              <!-- Special Requirements -->
+              <div class="mb-4">
+                <label for="special_requirements" class="form-label fw-bold">
+                  <i class="fas fa-wheelchair text-primary"></i> Special Requirements
+                </label>
+                <textarea class="form-control" id="special_requirements" name="special_requirements" rows="3"
+                          placeholder="e.g., Wheelchair accessible, Need vegetarian restaurants, Prefer quiet hotels..."></textarea>
+                <div class="form-text">
+                  <i class="fas fa-info-circle"></i> Any special needs or requirements for your trip
+                </div>
+              </div>
+
+              <!-- Additional Notes -->
+              <div class="mb-4">
+                <label for="notes" class="form-label fw-bold">
+                  <i class="fas fa-sticky-note text-primary"></i> Additional Notes
+                </label>
+                <textarea class="form-control" id="notes" name="notes" rows="3"
+                          placeholder="Any other details you'd like us to consider..."></textarea>
+                <div class="form-text">
+                  <i class="fas fa-info-circle"></i> Optional: Any other information that might help create a better itinerary
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" onclick="previousStep()">
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <button type="submit" class="btn btn-success">
+                  <i class="fas fa-magic"></i> Generate My Trip!
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Quick Examples -->
+      <div class="mt-5">
+        <h5 class="text-center mb-4">
+          <i class="fas fa-lightbulb text-warning"></i> Need Inspiration?
+        </h5>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <button class="btn btn-outline-primary w-100" onclick="fillExample('adventure')">
+              🏔️ Adventure Trip to Manali
+            </button>
+          </div>
+          <div class="col-md-4 mb-3">
+            <button class="btn btn-outline-primary w-100" onclick="fillExample('cultural')">
+              🏛️ Cultural Trip to Paris
+            </button>
+          </div>
+          <div class="col-md-4 mb-3">
+            <button class="btn btn-outline-primary w-100" onclick="fillExample('relaxation')">
+              🏖️ Relaxing Trip to Bali
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+
+function nextStep() {
+  if (currentStep < totalSteps) {
+    document.getElementById(`step-${currentStep}`).style.display = 'none';
+    currentStep++;
+    document.getElementById(`step-${currentStep}`).style.display = 'block';
+    updateProgress();
+    updateTripSummary();
+  }
+}
+
+function previousStep() {
+  if (currentStep > 1) {
+    document.getElementById(`step-${currentStep}`).style.display = 'none';
+    currentStep--;
+    document.getElementById(`step-${currentStep}`).style.display = 'block';
+    updateProgress();
+    updateTripSummary();
+  }
+}
+
+function updateProgress() {
+  const progress = ((currentStep - 1) / (totalSteps - 1)) * 100; // Adjust for 0-based index
+  document.getElementById('progress-bar').style.width = progress + '%';
+}
+
+function updateTripSummary() {
+  const destination = document.getElementById('destination').value || 'Unknown Destination';
+  const duration = document.getElementById('duration').value || '5';
+  const adults = document.getElementById('adults').value || '2';
+  const children = document.getElementById('children').value || '0';
+  const budget = document.getElementById('budget').value || '0';
+  const currency = document.getElementById('currency').value || 'INR';
+  const tripTypes = Array.from(document.querySelectorAll('input[name="trip_type[]"]:checked')).map(el => el.value);
+  const travelPace = document.querySelector('input[name="travel_pace"]:checked').value;
+  const accommodation = document.getElementById('accommodation').value;
+  const interests = Array.from(document.querySelectorAll('input[name="interests[]"]:checked')).map(el => el.value);
+  const dietary = Array.from(document.querySelectorAll('input[name="dietary[]"]:checked')).map(el => el.value);
+  const avoid = document.getElementById('avoid').value;
+  const specialRequirements = document.getElementById('special_requirements').value;
+  const notes = document.getElementById('notes').value;
+
+  let summary = `${duration}-day trip to ${destination}`;
+  summary += ` • ${adults} adult${adults > 1 ? 's' : ''}`;
+  if (children > 0) summary += `, ${children} child${children > 1 ? 'ren' : ''}`;
+  if (budget > 0) summary += ` • Budget: ${currency} ${budget}`;
+
+  if (tripTypes.length > 0) {
+    summary += ` • ${tripTypes.map(type => type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ')}`;
+  }
+  if (travelPace) {
+    summary += ` • ${travelPace.charAt(0).toUpperCase() + travelPace.slice(1)} pace`;
+  }
+  if (accommodation) {
+    summary += ` • ${accommodation.charAt(0).toUpperCase() + accommodation.slice(1)} accommodation`;
+  }
+  if (interests.length > 0) {
+    summary += ` • ${interests.map(interest => interest.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ')}`;
+  }
+  if (dietary.length > 0) {
+    summary += ` • Dietary: ${dietary.map(d => d.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ')}`;
+  }
+  if (avoid) {
+    summary += ` • Avoid: ${avoid}`;
+  }
+  if (specialRequirements) {
+    summary += ` • Special Requirements: ${specialRequirements}`;
+  }
+  if (notes) {
+    summary += ` • Notes: ${notes}`;
+  }
+
+  document.getElementById('trip-summary').textContent = summary;
+}
+
+function fillExample(type) {
+  const examples = {
+    adventure: {
+      destination: 'Manali, India',
+      duration: '7',
+      adults: '2',
+      children: '0',
+      budget: '30000',
+      trip_type: ['adventure', 'hiking', 'wildlife'],
+      travel_pace: 'moderate',
+      accommodation: 'midrange',
+      interests: ['hiking', 'wildlife', 'museums'],
+      dietary: [],
+      avoid: '',
+      special_requirements: '',
+      notes: ''
+    },
+    cultural: {
+      destination: 'Paris, France',
+      duration: '5',
+      adults: '2',
+      children: '0',
+      budget: '40000',
+      trip_type: ['cultural', 'romantic', 'shopping'],
+      travel_pace: 'relaxed',
+      accommodation: 'boutique',
+      interests: ['museums', 'nightlife', 'foodie'],
+      dietary: [],
+      avoid: '',
+      special_requirements: '',
+      notes: ''
+    },
+    relaxation: {
+      destination: 'Bali, Indonesia',
+      duration: '4',
+      adults: '2',
+      children: '0',
+      budget: '20000',
+      trip_type: ['relaxation', 'romantic', 'beaches'],
+      travel_pace: 'relaxed',
+      accommodation: 'luxury',
+      interests: ['beaches', 'nightlife', 'foodie'],
+      dietary: [],
+      avoid: '',
+      special_requirements: '',
+      notes: ''
+    }
+  };
+
+  const example = examples[type];
+  if (example) {
+    document.getElementById('destination').value = example.destination;
+    document.getElementById('duration').value = example.duration;
+    document.getElementById('adults').value = example.adults;
+    document.getElementById('children').value = example.children;
+    document.getElementById('budget').value = example.budget;
+    document.getElementById('currency').value = 'INR'; // Default to INR for examples
+
+    // Set trip types
+    document.querySelectorAll('input[name="trip_type[]"]').forEach(input => {
+      input.checked = false;
+    });
+    example.trip_type.forEach(type => {
+      document.getElementById(`trip_type_${type}`).checked = true;
+    });
+
+    // Set travel pace
+    document.getElementById(example.travel_pace).checked = true;
+
+    // Set accommodation
+    document.getElementById('accommodation').value = example.accommodation;
+
+    // Set interests
+    document.querySelectorAll('input[name="interests[]"]').forEach(input => {
+      input.checked = false;
+    });
+    example.interests.forEach(interest => {
+      document.getElementById(`interest_${interest}`).checked = true;
+    });
+
+    // Set dietary preferences
+    document.querySelectorAll('input[name="dietary[]"]').forEach(input => {
+      input.checked = false;
+    });
+    example.dietary.forEach(d => {
+      document.getElementById(`dietary_${d}`).checked = true;
+    });
+
+    // Set avoid
+    document.getElementById('avoid').value = example.avoid;
+
+    // Set special requirements
+    document.getElementById('special_requirements').value = example.special_requirements;
+
+    // Set notes
+    document.getElementById('notes').value = example.notes;
+
+    updateTripSummary();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateProgress();
+
+  // Add event listeners for real-time updates
+  document.querySelectorAll('input, select, textarea').forEach(input => {
+    input.addEventListener('change', updateTripSummary);
+    input.addEventListener('input', updateTripSummary);
+  });
+
+  updateTripSummary();
+
+  // Initialize budget guide
+  updateBudgetGuide();
+
+  // Add specific event listeners for budget guide updates
+  const destinationInput = document.getElementById('destination');
+  const durationInput = document.getElementById('duration');
+
+  if (destinationInput) {
+    destinationInput.addEventListener('input', updateBudgetGuide);
+    destinationInput.addEventListener('change', updateBudgetGuide);
+  }
+
+  if (durationInput) {
+    durationInput.addEventListener('input', updateBudgetGuide);
+    durationInput.addEventListener('change', updateBudgetGuide);
+  }
+
+  // Initialize dropdown functionality
+  initializeDropdowns();
+});
+
+  // Update budget guide based on destination
+  function updateBudgetGuide() {
+    const destination = document.getElementById('destination').value.toLowerCase();
+    const duration = document.getElementById('duration').value || 5;
+    const budgetGuide = document.getElementById('budget-guide');
+
+    if (!budgetGuide) {
+      console.log('Budget guide element not found');
+      return;
+    }
+
+    const guides = {
+      'manali': `Typical budget for ${duration} days: ₹15,000 - ₹35,000 per person`,
+      'bali': `Typical budget for ${duration} days: ₹20,000 - ₹40,000 per person`,
+      'paris': `Typical budget for ${duration} days: ₹50,000 - ₹80,000 per person`,
+      'goa': `Typical budget for ${duration} days: ₹12,000 - ₹25,000 per person`,
+      'tokyo': `Typical budget for ${duration} days: ₹60,000 - ₹90,000 per person`,
+      'new york': `Typical budget for ${duration} days: ₹80,000 - ₹120,000 per person`,
+      'india': `Typical budget for ${duration} days: ₹8,000 - ₹20,000 per person`,
+      'france': `Typical budget for ${duration} days: ₹45,000 - ₹75,000 per person`,
+      'italy': `Typical budget for ${duration} days: ₹40,000 - ₹70,000 per person`,
+      'japan': `Typical budget for ${duration} days: ₹55,000 - ₹85,000 per person`,
+      'australia': `Typical budget for ${duration} days: ₹50,000 - ₹80,000 per person`,
+      'thailand': `Typical budget for ${duration} days: ₹15,000 - ₹30,000 per person`,
+      'singapore': `Typical budget for ${duration} days: ₹35,000 - ₹60,000 per person`,
+      'dubai': `Typical budget for ${duration} days: ₹40,000 - ₹70,000 per person`,
+      'switzerland': `Typical budget for ${duration} days: ₹70,000 - ₹100,000 per person`
+    };
+
+    let guide = guides[destination];
+
+    if (!guide) {
+      // Try to match partial destination names
+      for (const [key, value] of Object.entries(guides)) {
+        if (destination.includes(key) || key.includes(destination)) {
+          guide = value;
+          break;
+        }
+      }
+    }
+
+    if (!guide) {
+      guide = `Typical budget for ${duration} days: ₹15,000 - ₹50,000 per person`;
+    }
+
+    budgetGuide.textContent = guide;
+    console.log('Budget guide updated:', guide);
+  }
+
+  // Set destination from dropdown
+  function setDestination(destination) {
+    console.log('Setting destination:', destination);
+
+    const destinationInput = document.getElementById('destination');
+    if (destinationInput) {
+      destinationInput.value = destination;
+      updateTripSummary();
+      updateBudgetGuide();
+    }
+
+    // Close the dropdown properly
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    if (dropdownToggle) {
+      // Remove show class from dropdown
+      dropdownToggle.classList.remove('show');
+      const dropdownMenu = dropdownToggle.nextElementSibling;
+      if (dropdownMenu) {
+        dropdownMenu.classList.remove('show');
+      }
+
+      // Update aria-expanded attribute
+      dropdownToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    // Trigger change event
+    if (destinationInput) {
+      destinationInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+
+  // Enhanced form validation
+  function validateForm() {
+    const destination = document.getElementById('destination').value.trim();
+    const duration = document.getElementById('duration').value;
+    const adults = document.getElementById('adults').value;
+    const budget = document.getElementById('budget').value;
+    const tripTypes = document.querySelectorAll('input[name="trip_type[]"]:checked');
+    const travelPace = document.querySelector('input[name="travel_pace"]:checked');
+    const interests = document.querySelectorAll('input[name="interests[]"]:checked');
+
+    let errors = [];
+
+    if (!destination) errors.push('Please enter a destination');
+    if (!duration || duration < 1 || duration > 30) errors.push('Duration must be between 1 and 30 days');
+    if (!adults || adults < 1) errors.push('At least one adult is required');
+    if (!budget || budget < 1000) errors.push('Budget must be at least ₹1,000');
+    if (tripTypes.length === 0) errors.push('Please select at least one trip type');
+    if (!travelPace) errors.push('Please select a travel pace');
+    if (interests.length === 0) errors.push('Please select at least one interest');
+
+    if (errors.length > 0) {
+      alert('Please fix the following errors:\n' + errors.join('\n'));
+      return false;
+    }
+
+    return true;
+  }
+
+  // Enhanced form submission
+  document.getElementById('trip-planner-form').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+      e.preventDefault();
+      return false;
+    }
+
+    // Show loading state
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    submitBtn.disabled = true;
+
+    // Re-enable after 5 seconds if still on page
+    setTimeout(() => {
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    }, 5000);
+  });
+
+  // Initialize dropdown functionality
+  function initializeDropdowns() {
+    // Add click event listeners to dropdown items
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Extract destination from the text content
+        const text = this.textContent.trim();
+        const destination = text.replace(/^[🏔️🌴🗼🏖️🗾🗽]\s*/, ''); // Remove emoji and space
+
+        console.log('Dropdown item clicked:', destination);
+        setDestination(destination);
+
+        return false;
+      });
+    });
+
+    // Ensure Bootstrap dropdowns work properly
+    if (typeof bootstrap !== 'undefined') {
+      const dropdownElementList = document.querySelectorAll('.dropdown-toggle');
+      dropdownElementList.forEach(dropdownToggleEl => {
+        new bootstrap.Dropdown(dropdownToggleEl);
+      });
+    }
+
+    console.log('Dropdowns initialized');
+  }
+</script>
+
+<style>
+.btn-check:checked + .btn {
+  border-color: #007bff;
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-check:checked + .btn-outline-primary {
+  border-color: #007bff;
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-check:checked + .btn-outline-success {
+  border-color: #28a745;
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-check:checked + .btn-outline-warning {
+  border-color: #ffc107;
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-check:checked + .btn-outline-danger {
+  border-color: #dc3545;
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-check:checked + .btn-outline-info {
+  border-color: #17a2b8;
+  background-color: #17a2b8;
+  color: white;
+}
+
+.form-check-input:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+</style>

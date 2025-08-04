@@ -1,0 +1,160 @@
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4">
+          Plan Your Dream Trip with AI
+        </h1>
+        <p class="lead mb-4">
+          Discover curated destinations, get personalized itineraries, and explore the world with AI-powered travel planning.
+        </p>
+        <div class="d-flex gap-3">
+          <%= link_to "Start Planning", planner_path, class: "btn btn-light btn-lg" %>
+          <%= link_to "Explore Places", explore_path, class: "btn btn-outline-light btn-lg" %>
+        </div>
+      </div>
+      <div class="col-lg-6 text-center">
+        <i class="fas fa-globe-americas" style="font-size: 8rem; opacity: 0.3;"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI Prompt Examples -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <div class="ai-prompt-box text-center">
+          <h3 class="mb-4">
+            <i class="fas fa-robot"></i> Try These AI Prompts
+          </h3>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="bg-white bg-opacity-10 p-3 rounded">
+                <p class="mb-0">"3-day relaxing solo trip in Rishikesh"</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bg-white bg-opacity-10 p-3 rounded">
+                <p class="mb-0">"Budget Europe trip from India in September"</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bg-white bg-opacity-10 p-3 rounded">
+                <p class="mb-0">"Romantic 5-day Bali plan with hidden spots"</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bg-white bg-opacity-10 p-3 rounded">
+                <p class="mb-0">"Family-friendly trip with kids in Kerala"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Places -->
+<section class="py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="text-center mb-5">Featured Destinations</h2>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <% @featured_places.each do |place| %>
+        <div class="col-lg-4 col-md-6">
+          <div class="card place-card h-100">
+            <img src="<%= place.cover_image_url %>" class="card-img-top" alt="<%= place.name %>" style="height: 200px; object-fit: cover;">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="card-title mb-0"><%= place.name %></h5>
+                <span class="badge bg-primary"><%= place.category %></span>
+              </div>
+              <p class="card-text text-muted"><%= place.description %></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted"><%= place.region %></small>
+                <%= link_to "Explore", place_path(place), class: "btn btn-outline-primary btn-sm" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="text-center mb-5">Explore by Category</h2>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <% @categories.each do |category| %>
+        <div class="col-lg-3 col-md-4 col-6">
+          <%= link_to explore_path(category: category), class: "text-decoration-none" do %>
+            <div class="card text-center h-100">
+              <div class="card-body">
+                <i class="fas fa-mountain mb-3" style="font-size: 2rem; color: #667eea;"></i>
+                <h6 class="card-title"><%= category %></h6>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Recent Trips -->
+<% if @trending_trips.any? %>
+  <section class="py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <h2 class="text-center mb-5">Recent Trips</h2>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <% @trending_trips.each do |trip| %>
+          <div class="col-lg-4 col-md-6">
+            <div class="trip-card p-4 h-100">
+              <h5 class="mb-2"><%= trip.title %></h5>
+              <p class="text-muted mb-3"><%= trip.destination %></p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted">
+                    <%= trip.start_date.strftime("%b %d") %> - <%= trip.end_date.strftime("%b %d") %>
+                  </small>
+                  <br>
+                  <small class="text-muted">₹<%= number_with_delimiter(trip.budget) %></small>
+                </div>
+                <%= link_to "View", trip_path(trip), class: "btn btn-primary btn-sm" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+<% end %>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+  <div class="container text-center">
+    <h2 class="mb-4">Ready to Start Your Adventure?</h2>
+    <p class="lead mb-4">Let AI help you plan the perfect trip with personalized recommendations.</p>
+    <%= link_to "Plan with AI", planner_path, class: "btn btn-light btn-lg" %>
+  </div>
+</section>

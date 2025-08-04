@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Loading Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { padding: 20px; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        #map { height: 400px; width: 100%; border: 2px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Map Loading Test</h1>
+    <div id="status"></div>
+    <div class="mt-4">
+        <button class="btn btn-primary" onclick="testMapLoad()">Test Map Load</button>
+        <button class="btn btn-secondary" onclick="retryMap()">Retry Map</button>
+    </div>
+    <div class="mt-4">
+        <h4>Map Container:</h4>
+        <div id="map">
+            <div class="map-loading">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading Map...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mapInitialized = false;
+        let mapboxLoaded = false;
+
+        function addStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            const statusElement = document.createElement('div');
+            statusElement.className = `status ${type}`;
+            statusElement.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            statusDiv.appendChild(statusElement);
+            console.log(`${type.toUpperCase()}: ${message}`);
+        }
+
+        function initializeMap() {
+            addStatus('Initializing map...', 'info');
+
+            // Check if map is already initialized
+            if (mapInitialized) {
+                addStatus('Map already initialized, skipping...', 'info');
+                return;
+            }
+
+            // Check if Mapbox is available
+            if (typeof mapboxgl === 'undefined') {
+                addStatus('Mapbox not loaded, loading now...', 'info');
+                loadMapbox();
+                return;
+            }
+
+            try {
+                const token = 'pk.eyJ1IjoiZ3lhbnNpbmdoMTgiLCJhIjoiY21ic3MxZ3BiMGE2cDJtc2lpN3pnNXN6NCJ9.4UhCbEv0elEp6VG8OrtEgg';
+                mapboxgl.accessToken = token;
+
+                // Check if map container exists
+                const mapContainer = document.getElementById('map');
+                if (!mapContainer) {
+                    addStatus('Map container not found', 'error');
+                    return;
+                }
+
+                // Clear any existing content
+                mapContainer.innerHTML = '';
+
+                const map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: [78.9629, 20.5937], // India center
+                    zoom: 4,
+                    attributionControl: true
+                });
+
+                addStatus('Map instance created', 'success');
+
+                // Add controls
+                map.addControl(new mapboxgl.NavigationControl());
+                map.addControl(new mapboxgl.FullscreenControl());
+
+                // Store map reference
+                window.currentMap = map;
+                mapInitialized = true;
+
+                map.on('load', () => {
+                    addStatus('Map loaded successfully', 'success');
+                    // Hide loading spinner immediately when map loads
+                    const loadingDiv = document.querySelector('.map-loading');
+                    if (loadingDiv) {
+                        loadingDiv.style.display = 'none';
+                        addStatus('Loading spinner hidden', 'success');
+                    }
+                });
+
+                map.on('error', (e) => {
+                    addStatus(`Map error: ${e.error}`, 'error');
+                });
+
+            } catch (error) {
+                addStatus(`Map creation failed: ${error.message}`, 'error');
+            }
+        }
+
+        function loadMapbox() {
+            addStatus('Loading Mapbox GL JS...', 'info');
+
+            // Check if already loaded
+            if (typeof mapboxgl !== 'undefined') {
+                addStatus('Mapbox already loaded, initializing map...', 'info');
+                mapboxLoaded = true;
+                initializeMap();
+                return;
+            }
+
+            // Check if script is already being loaded
+            if (document.querySelector('script[src*="mapbox-gl"]')) {
+                addStatus('Mapbox script already loading...', 'info');
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js';
+
+            script.onload = () => {
+                addStatus('Mapbox GL JS loaded successfully', 'success');
+                mapboxLoaded = true;
+
+                // Small delay to ensure everything is ready
+                setTimeout(() => {
+                    initializeMap();
+                }, 100);
+            };
+
+            script.onerror = () => {
+                addStatus('Failed to load Mapbox GL JS', 'error');
+            };
+
+            document.head.appendChild(script);
+        }
+
+        function testMapLoad() {
+            addStatus('Testing map load...', 'info');
+            mapInitialized = false;
+            mapboxLoaded = false;
+            initializeMap();
+        }
+
+        function retryMap() {
+            addStatus('Retrying map...', 'info');
+            mapInitialized = false;
+            mapboxLoaded = false;
+
+            // Remove any existing mapbox scripts
+            const existingScript = document.querySelector('script[src*="mapbox-gl"]');
+            if (existingScript) {
+                existingScript.remove();
+            }
+
+            initializeMap();
+        }
+
+        // Enhanced initialization with multiple fallbacks
+        document.addEventListener('DOMContentLoaded', function() {
+            addStatus('DOM loaded, initializing map...', 'info');
+
+            // Try immediate initialization
+            if (typeof mapboxgl !== 'undefined') {
+                addStatus('Mapbox already available, initializing immediately...', 'info');
+                initializeMap();
+            } else {
+                addStatus('Mapbox not available, loading...', 'info');
+                loadMapbox();
+            }
+        });
+
+        // Additional initialization for better reliability
+        window.addEventListener('load', function() {
+            addStatus('Window loaded, checking map status...', 'info');
+            if (!mapInitialized && typeof mapboxgl !== 'undefined') {
+                addStatus('Mapbox available but map not initialized, initializing now...', 'info');
+                initializeMap();
+            }
+        });
+    </script>
+</body>
+</html>

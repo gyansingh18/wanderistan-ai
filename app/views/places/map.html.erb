@@ -1,0 +1,329 @@
+<div class="container-fluid p-0">
+  <!-- Simple Header -->
+  <div class="position-absolute start-0 mt-5 ms-3" style="z-index: 1000;">
+    <div class="card shadow-sm">
+      <div class="card-body p-3">
+        <h6 class="mb-1">
+          <i class="fas fa-map text-primary"></i> Wanderistan Map
+        </h6>
+        <small class="text-muted">Video markers added</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Container -->
+  <div id="map" style="height: 100vh; width: 100%;">
+    <div class="map-loading">
+      <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-muted">Loading Map...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load Mapbox CSS immediately -->
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+
+<!-- Load Mapbox JS immediately -->
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+
+<script>
+console.log('Map with video markers loaded');
+
+// Global map variable
+let currentMap = null;
+
+// Ultra simple map initialization - no checks, no delays
+function createMap() {
+  console.log('Creating map immediately...');
+
+  try {
+    const token = 'pk.eyJ1IjoiZ3lhbnNpbmdoMTgiLCJhIjoiY21ic3MxZ3BiMGE2cDJtc2lpN3pnNXN6NCJ9.4UhCbEv0elEp6VG8OrtEgg';
+    mapboxgl.accessToken = token;
+
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [78.9629, 20.5937], // India center
+      zoom: 4
+    });
+
+    console.log('Map created successfully');
+
+    // Store map reference
+    currentMap = map;
+
+    map.on('load', () => {
+      console.log('Map loaded successfully');
+      // Hide loading spinner
+      const loadingDiv = document.querySelector('.map-loading');
+      if (loadingDiv) {
+        loadingDiv.style.display = 'none';
+        console.log('Loading spinner hidden');
+      }
+
+      // Add markers after map loads
+      addVideoMarkers(map);
+    });
+
+    map.on('error', (e) => {
+      console.error('Map error:', e.error);
+    });
+
+  } catch (error) {
+    console.error('Error creating map:', error);
+  }
+}
+
+// Add custom video markers
+function addVideoMarkers(map) {
+  console.log('Adding video markers...');
+
+  // Sample video locations with standard Mapbox markers
+  const videoLocations = [
+    {
+      name: 'India',
+      coordinates: [78.9629, 20.5937], // Center of India
+      category: 'country',
+      videos: [
+        { title: 'Amazing India Travel Guide', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { title: 'Indian Culture & Heritage', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      ]
+    },
+    {
+      name: 'Manali',
+      coordinates: [77.1861, 32.2432], // Manali, Himachal Pradesh
+      category: 'mountain',
+      videos: [
+        { title: 'Manali Travel Guide', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { title: 'Manali Adventure Activities', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      ]
+    },
+    {
+      name: 'Goa',
+      coordinates: [74.2179, 15.2993], // Goa, India
+      category: 'beach',
+      videos: [
+        { title: 'Goa Beach Paradise', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { title: 'Goa Nightlife & Parties', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      ]
+    },
+    {
+      name: 'Rishikesh',
+      coordinates: [78.2676, 30.0869], // Rishikesh, Uttarakhand
+      category: 'adventure',
+      videos: [
+        { title: 'Rishikesh Yoga Capital', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { title: 'Rishikesh River Rafting', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      ]
+    },
+    {
+      name: 'Mumbai',
+      coordinates: [72.8777, 19.0760], // Mumbai, Maharashtra
+      category: 'city',
+      videos: [
+        { title: 'Mumbai City Guide', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { title: 'Mumbai Street Food', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      ]
+    },
+    {
+      name: 'Delhi',
+      coordinates: [77.2090, 28.6139], // New Delhi
+      category: 'city',
+      videos: [
+        { title: 'Delhi Travel Guide', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { title: 'Delhi Historical Sites', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      ]
+    },
+    {
+      name: 'Kerala',
+      coordinates: [76.2673, 10.8505], // Kerala
+      category: 'beach',
+      videos: [
+        { title: 'Kerala Backwaters', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { title: 'Kerala Ayurveda', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      ]
+    },
+    {
+      name: 'Jaipur',
+      coordinates: [75.7873, 26.9124], // Jaipur, Rajasthan
+      category: 'cultural',
+      videos: [
+        { title: 'Jaipur Pink City', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+        { title: 'Jaipur Forts & Palaces', youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' }
+      ]
+    }
+  ];
+
+  videoLocations.forEach(location => {
+    // Create popup content
+    const popupContent = `
+      <div class="video-popup">
+        <h6 class="mb-2">${location.name}</h6>
+        <p class="text-muted mb-2">${location.category}</p>
+        <p class="mb-3">${location.videos.length} travel videos available</p>
+        <button class="btn btn-sm btn-primary" onclick="showVideos('${location.name}', ${JSON.stringify(location.videos)})">
+          <i class="fas fa-play"></i> Watch Videos
+        </button>
+      </div>
+    `;
+
+    // Create popup
+    const popup = new mapboxgl.Popup({
+      maxWidth: '300px',
+      closeButton: true,
+      closeOnClick: false
+    }).setHTML(popupContent);
+
+    // Create standard Mapbox marker with different colors based on category
+    let markerColor = '#007bff'; // Default blue
+
+    switch(location.category) {
+      case 'country':
+        markerColor = '#28a745'; // Green for countries
+        break;
+      case 'mountain':
+        markerColor = '#6c757d'; // Gray for mountains
+        break;
+      case 'beach':
+        markerColor = '#17a2b8'; // Cyan for beaches
+        break;
+      case 'city':
+        markerColor = '#dc3545'; // Red for cities
+        break;
+      case 'cultural':
+        markerColor = '#fd7e14'; // Orange for cultural
+        break;
+      case 'adventure':
+        markerColor = '#6f42c1'; // Purple for adventure
+        break;
+    }
+
+    // Create and add standard Mapbox marker
+    new mapboxgl.Marker({ color: markerColor })
+      .setLngLat(location.coordinates)
+      .setPopup(popup)
+      .addTo(map);
+  });
+
+  console.log('Video markers added successfully');
+}
+
+// Show videos function
+function showVideos(locationName, videos) {
+  console.log(`Showing videos for ${locationName}:`, videos);
+
+  let videoHtml = '';
+  if (videos && videos.length > 0) {
+    videos.forEach((video, index) => {
+      videoHtml += `
+        <div class="col-md-6 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h6>${video.title}</h6>
+              <a href="${video.youtube_url}" target="_blank" class="btn btn-sm btn-primary">
+                <i class="fas fa-play"></i> Watch on YouTube
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  } else {
+    videoHtml = `
+      <div class="col-12">
+        <div class="text-center text-muted">
+          <i class="fas fa-video-slash fa-3x mb-3"></i>
+          <h6>No videos found</h6>
+          <p>No travel videos found for ${locationName}.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Create modal
+  const modalHtml = `
+    <div class="modal fade" id="videoModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">${locationName} Videos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              ${videoHtml}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Remove existing modal if any
+  const existingModal = document.getElementById('videoModal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  // Add new modal
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  // Show modal
+  const modal = new bootstrap.Modal(document.getElementById('videoModal'));
+  modal.show();
+}
+
+// Try to create map immediately
+createMap();
+
+// Also try on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, trying to create map...');
+  createMap();
+});
+
+// Also try on window load
+window.addEventListener('load', function() {
+  console.log('Window loaded, trying to create map...');
+  createMap();
+});
+</script>
+
+<style>
+  /* Loading indicator */
+  .map-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Video popup styles */
+  .video-popup {
+    padding: 10px;
+  }
+
+  .video-popup h6 {
+    color: #007bff;
+    margin-bottom: 8px;
+  }
+
+  .video-popup .btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* Ensure popups are always visible */
+  .mapboxgl-popup {
+    z-index: 1002 !important;
+  }
+
+  .mapboxgl-popup-content {
+    z-index: 1002 !important;
+  }
+</style>

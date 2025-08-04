@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trips Index Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Trips Index Test</h1>
+
+    <div id="results"></div>
+
+    <div class="mt-4">
+        <button class="btn btn-primary" onclick="testTripsIndex()">Test Trips Index</button>
+        <button class="btn btn-secondary" onclick="location.reload()">Reload</button>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.textContent = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function testTripsIndex() {
+            addResult('Testing trips index functionality...', 'info');
+
+            // Test 1: Check if trips page is accessible
+            fetch('/trips')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    addResult('✅ Trips page accessible', 'success');
+
+                    // Test 2: Check for trip cards
+                    if (html.includes('trip-card')) {
+                        addResult('✅ Trip cards found', 'success');
+                    } else {
+                        addResult('❌ Trip cards not found', 'error');
+                    }
+
+                    // Test 3: Check for trip status badges
+                    if (html.includes('badge') && html.includes('Upcoming')) {
+                        addResult('✅ Trip status badges found', 'success');
+                    } else {
+                        addResult('❌ Trip status badges not found', 'error');
+                    }
+
+                    // Test 4: Check for navigation
+                    if (html.includes('navbar')) {
+                        addResult('✅ Navigation found', 'success');
+                    } else {
+                        addResult('❌ Navigation not found', 'error');
+                    }
+
+                    // Test 5: Check for empty state
+                    if (html.includes('No trips planned yet') || html.includes('trip-item')) {
+                        addResult('✅ Content structure found', 'success');
+                    } else {
+                        addResult('❌ Content structure not found', 'error');
+                    }
+
+                })
+                .catch(error => {
+                    addResult(`❌ Error testing trips index: ${error.message}`, 'error');
+                });
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            addResult('Page loaded, ready to test trips index...', 'info');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<div class="container py-5">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="mb-3">
+        <i class="fas fa-suitcase text-primary"></i> My Trips
+      </h1>
+      <p class="text-muted">Manage and view all your planned adventures.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <%= link_to new_trip_path, class: "btn btn-primary me-2" do %>
+        <i class="fas fa-plus"></i> New Trip
+      <% end %>
+      <%= link_to planner_path, class: "btn btn-outline-primary" do %>
+        <i class="fas fa-robot"></i> AI Planner
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Trip Filters -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary active" data-filter="all">All Trips</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="upcoming">Upcoming</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="current">Current</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="past">Past</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trips Grid -->
+  <% if @trips.any? %>
+    <div class="row g-4">
+      <% @trips.each do |trip| %>
+        <div class="col-lg-4 col-md-6 trip-item" data-status="<%= trip_status(trip) %>">
+          <div class="card trip-card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title mb-0"><%= trip.title %></h5>
+                <span class="badge <%= trip_status_badge(trip) %>">
+                  <%= trip_status_text(trip) %>
+                </span>
+              </div>
+
+              <p class="text-muted mb-2">
+                <i class="fas fa-map-marker-alt"></i> <%= trip.destination %>
+              </p>
+
+              <div class="row mb-3">
+                <div class="col-6">
+                  <small class="text-muted d-block">
+                    <i class="fas fa-calendar"></i> <%= trip.start_date.strftime("%b %d") %>
+                  </small>
+                  <small class="text-muted d-block">
+                    <i class="fas fa-calendar-check"></i> <%= trip.end_date.strftime("%b %d") %>
+                  </small>
+                </div>
+                <div class="col-6 text-end">
+                  <small class="text-muted d-block">
+                    <i class="fas fa-clock"></i> <%= pluralize(trip.duration_days, 'day') %>
+                  </small>
+                  <small class="text-muted d-block">
+                    <i class="fas fa-rupee-sign"></i> <%= number_with_delimiter(trip.budget) %>
+                  </small>
+                </div>
+              </div>
+
+              <% if trip.ai_summary.present? %>
+                <p class="card-text small text-muted mb-3">
+                  <%= truncate(trip.ai_summary, length: 100) %>
+                </p>
+              <% end %>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group btn-group-sm">
+                  <%= link_to trip_path(trip), class: "btn btn-outline-primary" do %>
+                    <i class="fas fa-eye"></i> View
+                  <% end %>
+                  <%= link_to edit_trip_path(trip), class: "btn btn-outline-secondary" do %>
+                    <i class="fas fa-edit"></i> Edit
+                  <% end %>
+                </div>
+                <div class="dropdown">
+                  <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <%= link_to "Clone Trip", "#", class: "dropdown-item" %>
+                    </li>
+                    <li>
+                      <%= link_to "Share Trip", "#", class: "dropdown-item" %>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <%= link_to "Delete Trip", trip_path(trip),
+                          method: :delete,
+                          data: { confirm: "Are you sure?" },
+                          class: "dropdown-item text-danger" %>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-5">
+      <i class="fas fa-suitcase text-muted mb-4" style="font-size: 4rem;"></i>
+      <h4 class="text-muted mb-3">No trips planned yet</h4>
+      <p class="text-muted mb-4">Start planning your next adventure with our AI-powered trip planner.</p>
+      <div class="d-flex justify-content-center gap-3">
+        <%= link_to planner_path, class: "btn btn-primary btn-lg" do %>
+          <i class="fas fa-robot"></i> Plan with AI
+        <% end %>
+        <%= link_to new_trip_path, class: "btn btn-outline-primary btn-lg" do %>
+          <i class="fas fa-plus"></i> Create Trip
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filterButtons = document.querySelectorAll('[data-filter]');
+  const tripItems = document.querySelectorAll('.trip-item');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const filter = this.dataset.filter;
+
+      // Update active button
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+
+      // Filter trips
+      tripItems.forEach(item => {
+        const status = item.dataset.status;
+        if (filter === 'all' || status === filter) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+});
+</script>

@@ -1,0 +1,331 @@
+<div class="container py-5">
+  <!-- Trip Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="d-flex align-items-center mb-3">
+        <h1 class="mb-0 me-3"><%= @trip.title %></h1>
+        <span class="badge <%= trip_status_badge(@trip) %> fs-6">
+          <%= trip_status_text(@trip) %>
+        </span>
+      </div>
+      <p class="text-muted mb-2">
+        <i class="fas fa-map-marker-alt"></i> <%= @trip.destination %>
+      </p>
+      <div class="row">
+        <div class="col-md-6">
+          <small class="text-muted d-block">
+            <i class="fas fa-calendar"></i> <%= @trip.start_date.strftime("%B %d, %Y") %>
+          </small>
+          <small class="text-muted d-block">
+            <i class="fas fa-calendar-check"></i> <%= @trip.end_date.strftime("%B %d, %Y") %>
+          </small>
+        </div>
+        <div class="col-md-6">
+          <small class="text-muted d-block">
+            <i class="fas fa-clock"></i> <%= trip_duration_display(@trip) %>
+          </small>
+          <small class="text-muted d-block">
+            <i class="fas fa-rupee-sign"></i> <%= format_currency(@trip.budget) %>
+          </small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <div class="btn-group">
+        <%= link_to edit_trip_path(@trip), class: "btn btn-outline-primary" do %>
+          <i class="fas fa-edit"></i> Edit
+        <% end %>
+        <%= link_to trips_path, class: "btn btn-outline-secondary" do %>
+          <i class="fas fa-arrow-left"></i> Back
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Summary -->
+  <% if @trip.ai_summary.present? %>
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fas fa-robot text-primary"></i> AI Summary
+            </h5>
+            <p class="card-text"><%= @trip.ai_summary %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Budget Breakdown -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-chart-pie text-success"></i> Budget Breakdown
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-muted mb-3">Budget Overview</h6>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Total Budget:</span>
+                <strong>₹<%= format_currency(@trip.budget) %></strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Estimated Cost:</span>
+                <strong class="text-primary">₹<%= @trip.budget_estimate || format_currency(@trip.total_cost) %></strong>
+              </div>
+              <div class="d-flex justify-content-between mb-3">
+                <span>Savings:</span>
+                <strong class="text-success">₹<%= format_currency(@trip.savings) %></strong>
+              </div>
+
+              <!-- Budget Progress Bar -->
+              <% budget_percentage = (@trip.total_cost.to_f / @trip.budget * 100).round %>
+              <div class="progress mb-3" style="height: 10px;">
+                <div class="progress-bar <%= budget_percentage > 90 ? 'bg-danger' : budget_percentage > 75 ? 'bg-warning' : 'bg-success' %>"
+                     role="progressbar"
+                     style="width: <%= [budget_percentage, 100].min %>%"
+                     title="<%= budget_percentage %>% of budget used"></div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <h6 class="text-muted mb-3">Spending by Category</h6>
+              <div class="budget-categories">
+                <% if @trip.budget_breakdown.present? && @trip.budget_breakdown.any? %>
+                  <% @trip.budget_breakdown.each do |category, amount| %>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>
+                        <i class="fas fa-<%= budget_category_icon(category) %> text-<%= budget_category_color(category) %>"></i>
+                        <%= budget_category_name(category) %>
+                      </span>
+                      <span>₹<%= format_currency(amount) %></span>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <!-- Fallback budget breakdown -->
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="fas fa-plane text-primary"></i> Flights</span>
+                    <span>₹<%= format_currency(@trip.budget * 0.35) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="fas fa-bed text-info"></i> Accommodation</span>
+                    <span>₹<%= format_currency(@trip.budget * 0.25) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="fas fa-utensils text-warning"></i> Food & Dining</span>
+                    <span>₹<%= format_currency(@trip.budget * 0.15) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="fas fa-mountain text-success"></i> Activities</span>
+                    <span>₹<%= format_currency(@trip.budget * 0.15) %></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span><i class="fas fa-car text-secondary"></i> Transportation</span>
+                    <span>₹<%= format_currency(@trip.budget * 0.10) %></span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Money Saving Tips -->
+          <% if @trip.money_saving_tips.present? %>
+            <div class="mt-4">
+              <h6 class="text-muted mb-3">
+                <i class="fas fa-lightbulb text-warning"></i> Money Saving Tips
+              </h6>
+              <div class="row">
+                <% @trip.money_saving_tips.each do |tip| %>
+                  <div class="col-md-6 mb-2">
+                    <div class="d-flex align-items-start">
+                      <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                      <span class="small"><%= tip %></span>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Itinerary -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-route text-primary"></i> Itinerary
+          </h5>
+        </div>
+        <div class="card-body">
+          <% if @itinerary_items.any? %>
+            <div class="timeline">
+              <% @itinerary_items.group_by(&:day).each do |day, items| %>
+                <div class="timeline-item mb-4">
+                  <div class="timeline-marker bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <span class="fw-bold"><%= day %></span>
+                  </div>
+                  <div class="timeline-content ms-4">
+                    <h6 class="mb-2">Day <%= day %></h6>
+                    <% items.each do |item| %>
+                      <div class="card mb-2">
+                        <div class="card-body">
+                          <h6 class="card-title"><%= item.title %></h6>
+                          <% if item.description.present? %>
+                            <p class="card-text small text-muted"><%= item.description %></p>
+                          <% end %>
+                          <% if item.place.present? %>
+                            <div class="d-flex justify-content-between align-items-center">
+                              <small class="text-muted">
+                                <i class="fas fa-map-marker-alt"></i> <%= item.place.name %>
+                              </small>
+                              <%= link_to "View Place", place_path(item.place), class: "btn btn-sm btn-outline-primary" %>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-route text-muted mb-3" style="font-size: 3rem;"></i>
+              <h6 class="text-muted">No itinerary items yet</h6>
+              <p class="text-muted small">Add places to your trip to see them here.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Related Videos -->
+      <% if @videos.any? %>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0">
+              <i class="fas fa-video text-danger"></i> Related Videos
+            </h6>
+          </div>
+          <div class="card-body">
+            <% @videos.first(3).each_with_index do |video, index| %>
+              <div class="mb-3">
+                <div class="ratio ratio-16x9 mb-2">
+                  <iframe src="<%= video[:embed_url] %>"
+                          title="<%= video[:title] %>"
+                          frameborder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowfullscreen></iframe>
+                </div>
+                <h6 class="small mb-1"><%= video[:title] %></h6>
+                <% if video[:place_name] %>
+                  <small class="text-muted">
+                    <i class="fas fa-map-marker-alt"></i> <%= video[:place_name] %>
+                  </small>
+                <% end %>
+              </div>
+              <% if index < @videos.first(3).length - 1 %>
+                <hr class="my-3">
+              <% end %>
+            <% end %>
+            <% if @videos.length > 3 %>
+              <div class="text-center mt-3">
+                <small class="text-muted">+<%= @videos.length - 3 %> more videos</small>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Trip Stats -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="fas fa-chart-bar text-info"></i> Trip Stats
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-6">
+              <div class="border-end">
+                <h4 class="text-primary mb-1"><%= @itinerary_items.count %></h4>
+                <small class="text-muted">Activities</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <h4 class="text-success mb-1"><%= @trip.places.count %></h4>
+              <small class="text-muted">Places</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="fas fa-tools text-warning"></i> Quick Actions
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <%= link_to explore_path, class: "btn btn-outline-primary btn-sm" do %>
+              <i class="fas fa-search"></i> Find Places
+            <% end %>
+            <%= link_to "/explore/map", class: "btn btn-outline-info btn-sm" do %>
+              <i class="fas fa-map"></i> View Map
+            <% end %>
+            <button class="btn btn-outline-success btn-sm">
+              <i class="fas fa-share"></i> Share Trip
+            </button>
+            <button class="btn btn-outline-warning btn-sm">
+              <i class="fas fa-download"></i> Export PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.timeline {
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e9ecef;
+}
+
+.timeline-item {
+  position: relative;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 0;
+  z-index: 1;
+}
+
+.timeline-content {
+  position: relative;
+}
+</style>
