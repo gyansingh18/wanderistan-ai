@@ -41,7 +41,7 @@ function createMap() {
   console.log('Creating map immediately...');
 
   try {
-    const token = 'pk.eyJ1IjoiZ3lhbnNpbmdoMTgiLCJhIjoiY21ic3MxZ3BiMGE2cDJtc2lpN3pnNXN6NCJ9.4UhCbEv0elEp6VG8OrtEgg';
+    const token = '<%= ENV["MAPBOX_API_KEY"] %>';
     mapboxgl.accessToken = token;
 
     const map = new mapboxgl.Map({

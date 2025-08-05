@@ -33,3 +33,10 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Ignore API keys and sensitive configuration
+config/local_env.yml
+.env
+.env.local
+.env.development
+.env.production

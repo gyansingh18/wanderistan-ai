@@ -1,7 +1,7 @@
 class OpenaiService
   include HTTParty
 
-  OPENAI_API_KEY = ENV["OPENAI_ACCESS_TOKEN"]
+  OPENAI_API_KEY = ENV["OPENAI_API_KEY"]
   OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions"
 
   def self.generate_trip_itinerary(prompt)

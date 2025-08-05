@@ -1,5 +1,5 @@
 class TripsController < ApplicationController
-  before_action :authenticate_user!, except: [:planner]
+  before_action :authenticate_user!, except: [:planner, :test_openai]
   before_action :set_trip, only: [:show, :edit, :update, :destroy, :add_place, :remove_place]
 
   def index

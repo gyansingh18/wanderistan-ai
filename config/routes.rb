@@ -23,6 +23,10 @@ Rails.application.routes.draw do
   get 'planner', to: 'trips#planner'
   post 'planner', to: 'trips#generate_plan'
 
+  # Simple redirects for convenience
+  get 'map', to: redirect('/explore/map')
+  get 'test', to: 'trips#test_openai'
+
   # Places routes
   resources :places, only: [:index, :show] do
     collection do

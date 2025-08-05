@@ -3,77 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map Test - Simple</title>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+    <title>Simple Map Test</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
     <style>
         body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
-        #map { width: 100%; height: 400px; border: 2px solid #ccc; margin: 20px 0; }
-        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .info { background: #d1ecf1; color: #0c5460; }
+        #map { width: 100%; height: 400px; border-radius: 8px; }
+        .info { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .error { color: red; }
+        .success { color: green; }
     </style>
 </head>
 <body>
-    <h1>Map Test - Simple</h1>
-
-    <div id="status"></div>
+    <div class="info">
+        <h2>Simple Map Test</h2>
+        <p>This is a basic test of Mapbox integration with environment variables.</p>
+        <div id="status">Loading...</div>
+    </div>
 
     <div id="map"></div>
 
-    <div>
-        <button onclick="testMap()">Test Map</button>
-        <button onclick="location.reload()">Reload Page</button>
-    </div>
-
     <script>
-        const statusDiv = document.getElementById('status');
+        // Get API key from environment variable or use placeholder
+        const apiKey = '<%= ENV["MAPBOX_API_KEY"] %>' || 'YOUR_MAPBOX_API_KEY';
 
-        function updateStatus(message, type = 'info') {
-            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
-            console.log(`[${type.toUpperCase()}] ${message}`);
-        }
-
-        function testMap() {
-            updateStatus('Testing map functionality...', 'info');
-
-            // Test 1: Check Mapbox
-            if (typeof mapboxgl === 'undefined') {
-                updateStatus('❌ Mapbox GL JS not loaded', 'error');
-                return;
-            }
-            updateStatus('✅ Mapbox GL JS loaded', 'success');
-
-            // Test 2: Create map
+        if (apiKey === 'YOUR_MAPBOX_API_KEY' || !apiKey) {
+            document.getElementById('status').innerHTML = '<span class="error">❌ Mapbox API key not configured. Please set MAPBOX_API_KEY environment variable.</span>';
+        } else {
             try {
-                mapboxgl.accessToken = 'pk.eyJ1IjoiZ3lhbnNpbmdoIiwiYSI6ImNsdGZ0Z2Z0ZyJ9.1234567890';
+                mapboxgl.accessToken = apiKey;
 
                 const map = new mapboxgl.Map({
                     container: 'map',
                     style: 'mapbox://styles/mapbox/streets-v11',
-                    center: [78.9629, 20.5937], // India
+                    center: [78.9629, 20.5937], // India center
                     zoom: 4
                 });
 
                 map.on('load', () => {
-                    updateStatus('✅ Map loaded successfully!', 'success');
+                    document.getElementById('status').innerHTML = '<span class="success">✅ Map loaded successfully!</span>';
+
+                    // Add a simple marker
+                    new mapboxgl.Marker()
+                        .setLngLat([78.9629, 20.5937])
+                        .setPopup(new mapboxgl.Popup().setHTML('<h3>India</h3><p>Welcome to Wanderistan!</p>'))
+                        .addTo(map);
                 });
 
                 map.on('error', (e) => {
-                    updateStatus(`❌ Map error: ${e.error}`, 'error');
+                    document.getElementById('status').innerHTML = '<span class="error">❌ Map error: ' + e.error.message + '</span>';
                 });
 
             } catch (error) {
-                updateStatus(`❌ Error creating map: ${error.message}`, 'error');
+                document.getElementById('status').innerHTML = '<span class="error">❌ Error initializing map: ' + error.message + '</span>';
             }
         }
-
-        // Auto-test on page load
-        window.addEventListener('load', () => {
-            updateStatus('Page loaded, testing map...', 'info');
-            setTimeout(testMap, 1000);
-        });
     </script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 # API Keys (replace with your actual keys)
-OPENAI_API_KEY: "your_openai_api_key_here"
-YOUTUBE_API_KEY: "your_youtube_api_key_here"
-MAPBOX_ACCESS_TOKEN: "your_mapbox_access_token_here"
+# OPENAI_API_KEY: "your_openai_api_key_here"
+# YOUTUBE_API_KEY: "your_youtube_api_key_here"
+# MAPBOX_ACCESS_TOKEN: "your_mapbox_access_token_here"
 
 # Redis (for Sidekiq)
 REDIS_URL: "redis://localhost:6379/0"
