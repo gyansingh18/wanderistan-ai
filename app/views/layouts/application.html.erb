@@ -15,65 +15,689 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Mapbox CSS -->
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
+      /* Global Styles */
+      :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Hero Section */
       .hero-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-gradient);
         color: white;
-        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
       }
 
-      .place-card {
+      .hero-bg-animation {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      .floating-shapes {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .shape {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .shape-1 {
+        width: 80px;
+        height: 80px;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .shape-2 {
+        width: 120px;
+        height: 120px;
+        top: 60%;
+        right: 10%;
+        animation-delay: 2s;
+      }
+
+      .shape-3 {
+        width: 60px;
+        height: 60px;
+        top: 40%;
+        left: 50%;
+        animation-delay: 4s;
+      }
+
+      .shape-4 {
+        width: 100px;
+        height: 100px;
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 1s;
+      }
+
+      .shape-5 {
+        width: 90px;
+        height: 90px;
+        top: 80%;
+        right: 30%;
+        animation-delay: 3s;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+      }
+
+      .gradient-text {
+        background: linear-gradient(45deg, #fff, #f0f0f0, #fff);
+        background-size: 200% 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: gradient-shift 3s ease-in-out infinite;
+      }
+
+      @keyframes gradient-shift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-visual {
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-phone-mockup {
+        display: inline-block;
+        position: relative;
+        transform: perspective(1000px) rotateY(-15deg) rotateX(5deg);
         transition: transform 0.3s ease;
+      }
+
+      .hero-phone-mockup:hover {
+        transform: perspective(1000px) rotateY(-10deg) rotateX(2deg) scale(1.05);
+      }
+
+      .phone-screen {
+        width: 280px;
+        height: 500px;
+        background: #1a1a1a;
+        border-radius: 30px;
+        padding: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        position: relative;
+      }
+
+      .app-interface {
+        background: #fff;
+        height: 100%;
+        border-radius: 20px;
+        overflow: hidden;
+      }
+
+      .app-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 15px;
+        text-align: center;
+      }
+
+      .status-bar {
+        height: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+
+      .app-title {
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      .app-content {
+        padding: 20px;
+      }
+
+      .destination-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+
+      .card-image {
+        width: 100%;
+        height: 80px;
+        background: var(--secondary-gradient);
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+
+      .ai-suggestion {
+        display: flex;
+        align-items: center;
+        background: #e3f2fd;
+        border-radius: 15px;
+        padding: 15px;
+      }
+
+      .ai-avatar {
+        font-size: 24px;
+        margin-right: 10px;
+      }
+
+      .scroll-indicator {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+      }
+
+      .scroll-arrow {
+        width: 30px;
+        height: 30px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-top: none;
+        border-left: none;
+        transform: rotate(45deg);
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0) rotate(45deg); }
+        40% { transform: translateY(-10px) rotate(45deg); }
+        60% { transform: translateY(-5px) rotate(45deg); }
+      }
+
+      /* Features Section */
+      .feature-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
         border: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
 
-      .place-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
       }
 
-      .trip-card {
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: white;
+        font-size: 32px;
+      }
+
+      /* AI Demo Section */
+      .ai-demo-section {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      }
+
+      .prompt-card {
         background: white;
         border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-gradient);
       }
 
-      .trip-card:hover {
-        transform: translateY(-3px);
+      .prompt-card:hover {
+        transform: translateX(10px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       }
 
-      .ai-prompt-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 15px;
-        padding: 30px;
+      .prompt-content {
+        display: flex;
+        align-items: center;
+      }
+
+      .ai-demo-visual {
+        display: flex;
+        justify-content: center;
+      }
+
+      .demo-interface {
+        width: 350px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .demo-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .demo-avatar {
+        font-size: 24px;
+        margin-right: 10px;
+      }
+
+      .demo-messages {
+        padding: 20px;
+      }
+
+      .message {
+        margin-bottom: 15px;
+      }
+
+      .ai-message {
+        text-align: left;
+      }
+
+      .user-message {
+        text-align: right;
+      }
+
+      .message-content {
+        background: #f0f2f5;
+        padding: 12px 16px;
+        border-radius: 18px;
+        display: inline-block;
+        max-width: 80%;
+      }
+
+      .user-message .message-content {
+        background: var(--primary-gradient);
         color: white;
       }
 
+      .typing-indicator {
+        display: flex;
+        gap: 4px;
+        margin-top: 8px;
+      }
+
+      .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background: #999;
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+      }
+
+      .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+      .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+      @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+      }
+
+      .demo-suggestions {
+        padding: 0 20px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .suggestion-chip {
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .suggestion-chip:hover {
+        background: #1976d2;
+        color: white;
+        transform: scale(1.05);
+      }
+
+      /* Map Preview Section */
+      .map-preview-container {
+        display: flex;
+        justify-content: center;
+      }
+
+      .map-mockup {
+        width: 100%;
+        max-width: 800px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .map-header {
+        background: #f8f9fa;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .map-controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      .control-btn {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ddd;
+      }
+
+      .map-search {
+        background: white;
+        padding: 10px 15px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .map-content {
+        height: 400px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .map-markers {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+
+      .marker {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .marker-1 {
+        top: 30%;
+        left: 20%;
+        background: #e74c3c;
+      }
+
+      .marker-2 {
+        top: 50%;
+        right: 30%;
+        background: #3498db;
+      }
+
+      .marker-3 {
+        bottom: 30%;
+        left: 40%;
+        background: #f39c12;
+      }
+
+      .marker-4 {
+        top: 20%;
+        right: 20%;
+        background: #9b59b6;
+      }
+
+      .marker-pulse {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: inherit;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(3);
+          opacity: 0;
+        }
+      }
+
+      .map-popup {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-width: 250px;
+        animation: slideIn 0.5s ease;
+      }
+
+      @keyframes slideIn {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .popup-videos {
+        display: flex;
+        gap: 8px;
+        margin: 10px 0;
+      }
+
+      .video-thumbnail {
+        width: 40px;
+        height: 40px;
+        background: #f0f0f0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .video-thumbnail:hover {
+        background: var(--primary-gradient);
+        color: white;
+        transform: scale(1.1);
+      }
+
+      /* Testimonials Section */
+      .testimonial-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: none;
+      }
+
+      .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .author-avatar {
+        font-size: 32px;
+      }
+
+      /* Stats Section */
+      .stat-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: none;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: white;
+        font-size: 24px;
+      }
+
+      .stat-number {
+        color: #2c3e50;
+      }
+
+      /* CTA Section */
+      .cta-section {
+        background: var(--primary-gradient);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .trust-badges {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .hero-section {
+          min-height: 80vh;
+        }
+        
+        .phone-screen {
+          width: 240px;
+          height: 400px;
+        }
+        
+        .demo-interface {
+          width: 300px;
+        }
+        
+        .map-mockup {
+          max-width: 100%;
+        }
+      }
+
+      /* Animation Classes */
+      .fade-in {
+        animation: fadeIn 1s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Button Styles */
+      .btn {
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-lg {
+        padding: 12px 30px;
+        font-size: 18px;
+      }
+
+      /* Navbar Styles */
       .navbar-brand {
         font-weight: bold;
         font-size: 1.5rem;
       }
 
-      .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 25px;
-        padding: 10px 25px;
+      .navbar {
+        backdrop-filter: blur(10px);
+        background: rgba(33, 37, 41, 0.95) !important;
       }
 
-      .btn-primary:hover {
-        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        transform: translateY(-2px);
+      /* Footer Styles */
+      footer {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
       }
     </style>
   </head>
 
   <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
       <div class="container">
         <%= link_to "🧭 Wanderistan AI", root_path, class: "navbar-brand" %>
 
@@ -127,21 +751,21 @@
 
     <!-- Flash Messages -->
     <% if notice %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top: 80px;">
         <%= notice %>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     <% end %>
 
     <% if alert %>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top: 80px;">
         <%= alert %>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     <% end %>
 
     <!-- Main Content -->
-    <main>
+    <main style="margin-top: 80px;">
       <%= yield %>
     </main>
 
@@ -164,5 +788,36 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Mapbox JS -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+      // Initialize AOS animations
+      AOS.init({
+        duration: 1000,
+        easing: 'ease-in-out',
+        once: true
+      });
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+          });
+        });
+      });
+
+      // Add scroll effect to navbar
+      window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+          navbar.style.background = 'rgba(33, 37, 41, 0.98) !important';
+        } else {
+          navbar.style.background = 'rgba(33, 37, 41, 0.95) !important';
+        }
+      });
+    </script>
   </body>
 </html>
