@@ -1,4 +1,14 @@
 module TripsHelper
+  def trip_status(trip)
+    if trip.start_date > Date.current
+      'upcoming'
+    elsif trip.end_date < Date.current
+      'past'
+    else
+      'current'
+    end
+  end
+
   def trip_status_badge(trip)
     if trip.start_date > Date.current
       'bg-primary'

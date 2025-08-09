@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_04_115849) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_10_000522) do
   create_table "itinerary_items", force: :cascade do |t|
     t.integer "trip_id", null: false
     t.integer "day"
@@ -35,6 +35,30 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_04_115849) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "pois", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "poi_type", null: false
+    t.decimal "latitude", precision: 10, scale: 6, null: false
+    t.decimal "longitude", precision: 10, scale: 6, null: false
+    t.text "description"
+    t.decimal "price"
+    t.decimal "rating"
+    t.json "amenities"
+    t.json "opening_hours"
+    t.string "contact_info"
+    t.string "website"
+    t.boolean "verified", default: false
+    t.integer "likes_count", default: 0
+    t.integer "reviews_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["latitude", "longitude"], name: "index_pois_on_latitude_and_longitude"
+    t.index ["poi_type"], name: "index_pois_on_poi_type"
+    t.index ["verified"], name: "index_pois_on_verified"
+  end
+
+
 
   create_table "trips", force: :cascade do |t|
     t.string "title"
@@ -77,6 +101,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_04_115849) do
 
   add_foreign_key "itinerary_items", "places"
   add_foreign_key "itinerary_items", "trips"
+
   add_foreign_key "trips", "users"
   add_foreign_key "videos", "places"
 end

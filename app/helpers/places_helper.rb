@@ -69,4 +69,34 @@ module PlacesHelper
     end
     stars.html_safe
   end
+
+  def category_color(category)
+    colors = {
+      'beach' => '#17a2b8',      # Cyan
+      'mountain' => '#6c757d',   # Gray
+      'city' => '#dc3545',       # Red
+      'temple' => '#ffc107',     # Yellow
+      'museum' => '#6610f2',     # Purple
+      'restaurant' => '#fd7e14',  # Orange
+      'adventure' => '#6f42c1',  # Purple
+      'cultural' => '#fd7e14',   # Orange
+      'historical' => '#6610f2'  # Purple
+    }
+    colors[category.to_s.downcase] || '#007bff' # Default to blue
+  end
+
+  def category_class(category)
+    classes = {
+      'beach' => 'info',
+      'mountain' => 'secondary',
+      'city' => 'danger',
+      'temple' => 'warning',
+      'museum' => 'primary',
+      'restaurant' => 'warning',
+      'adventure' => 'primary',
+      'cultural' => 'warning',
+      'historical' => 'primary'
+    }
+    classes[category.to_s.downcase] || 'primary'
+  end
 end

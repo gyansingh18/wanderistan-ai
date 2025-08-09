@@ -1,0 +1,57 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-800 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 space-y-8">
+    <div class="text-center">
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
+      <p class="text-sm text-gray-600">Start planning your next adventure</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "mt-8 space-y-6" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="space-y-4">
+        <div>
+          <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= f.email_field :email, autofocus: true, autocomplete: "email",
+                class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "Enter your email" %>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between">
+            <%= f.label :password, class: "block text-sm font-medium text-gray-700" %>
+            <% if @minimum_password_length %>
+              <span class="text-xs text-gray-500">(<%= @minimum_password_length %> characters minimum)</span>
+            <% end %>
+          </div>
+          <div class="mt-1">
+            <%= f.password_field :password, autocomplete: "new-password",
+                class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "Create a password" %>
+          </div>
+        </div>
+
+        <div>
+          <%= f.label :password_confirmation, class: "block text-sm font-medium text-gray-700" %>
+          <div class="mt-1">
+            <%= f.password_field :password_confirmation, autocomplete: "new-password",
+                class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                placeholder: "Confirm your password" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <%= f.submit "Create account", class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      </div>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-600">
+        Already have an account?
+        <%= link_to "Sign in", new_session_path(resource_name), class: "font-medium text-blue-600 hover:text-blue-500" %>
+      </p>
+    </div>
+  </div>
+</div>

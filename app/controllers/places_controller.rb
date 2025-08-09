@@ -1,5 +1,7 @@
 class PlacesController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index, :show, :explore, :map, :map_data, :country_videos]
+  include PlaceFiltering
+
+  skip_before_action :authenticate_user!, only: [:index, :show, :explore, :map, :map_data]
 
   def index
     @q = Place.ransack(params[:q])
@@ -15,17 +17,9 @@ class PlacesController < ApplicationController
   end
 
   def explore
-    @places = Place.includes(:videos)
+    @places = apply_place_filters(Place.includes(:videos))
     @categories = Place::CATEGORIES
     @regions = Place::REGIONS
-
-    if params[:category].present?
-      @places = @places.by_category(params[:category])
-    end
-
-    if params[:region].present?
-      @places = @places.by_region(params[:region])
-    end
   end
 
   def map
@@ -34,7 +28,8 @@ class PlacesController < ApplicationController
   end
 
   def map_data
-    @places = Place.all
+    @places = apply_place_filters(Place.includes(:videos))
+
     render json: @places.map do |place|
       {
         id: place.id,
@@ -43,26 +38,22 @@ class PlacesController < ApplicationController
         longitude: place.longitude,
         category: place.category,
         region: place.region,
-        description: place.description
+        description: place.description,
+        image_url: place.image_url,
+        videos: place.videos.map { |video| {
+          id: video.id,
+          title: video.title,
+          youtube_url: video.youtube_url,
+          thumbnail_url: video.thumbnail_url
+        }},
+        stats: {
+          video_count: place.videos.count,
+          average_rating: place.average_rating,
+          visit_count: place.visit_count
+        }
       }
     end
   end
 
-  def country_videos
-    # Sample country video data - in a real app, this would come from a database
-    countries = [
-      { name: 'India', latitude: 20.5937, longitude: 78.9629, video_count: 5, category: 'cultural' },
-      { name: 'France', latitude: 46.2276, longitude: 2.2137, video_count: 4, category: 'cultural' },
-      { name: 'Italy', latitude: 41.8719, longitude: 12.5674, video_count: 3, category: 'cultural' },
-      { name: 'Japan', latitude: 36.2048, longitude: 138.2529, video_count: 6, category: 'cultural' },
-      { name: 'Australia', latitude: -25.2744, longitude: 133.7751, video_count: 4, category: 'adventure' },
-      { name: 'United States', latitude: 39.8283, longitude: -98.5795, video_count: 8, category: 'mixed' },
-      { name: 'United Kingdom', latitude: 55.3781, longitude: -3.4360, video_count: 4, category: 'cultural' },
-      { name: 'Canada', latitude: 56.1304, longitude: -106.3468, video_count: 3, category: 'nature' },
-      { name: 'Brazil', latitude: -14.2350, longitude: -51.9253, video_count: 5, category: 'adventure' },
-      { name: 'South Africa', latitude: -30.5595, longitude: 22.9375, video_count: 4, category: 'wildlife' }
-    ]
 
-    render json: countries
-  end
 end

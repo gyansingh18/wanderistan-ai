@@ -2,6 +2,14 @@ require_relative "boot"
 
 require "rails/all"
 
+# Load dotenv only in development or test environment
+if ['development', 'test'].include? ENV['RAILS_ENV']
+  require 'dotenv'
+  # Load the environment variables from the appropriate .env file
+  env_file = File.expand_path("../#{Rails.env}.env", __FILE__)
+  Dotenv.load(env_file) if File.exist?(env_file)
+end
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
@@ -23,23 +31,5 @@ module Wanderistan
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-
-    # Load environment variables from .env file
-    config.before_configuration do
-      env_file = File.join(Rails.root, '.env')
-      if File.exist?(env_file)
-        File.readlines(env_file).each do |line|
-          line.strip!
-          next if line.empty? || line.start_with?('#')
-
-          key, value = line.split('=', 2)
-          next unless key && value
-
-          # Remove quotes if present
-          value = value.gsub(/^["']|["']$/, '')
-          ENV[key.strip] = value.strip
-        end
-      end
-    end
   end
 end
