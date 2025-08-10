@@ -1,6 +1,7 @@
 class Poi < ApplicationRecord
   # Constants
   TYPES = %w[hostel camping trail food cultural].freeze
+  BACKPACKER_TYPES = %w[food stay experience transport].freeze
 
   # Validations
   validates :name, presence: true
@@ -25,7 +26,7 @@ class Poi < ApplicationRecord
 
   # Class methods
   def self.types_for_select
-    TYPES.map { |type| [type.titleize, type] }
+    (TYPES + BACKPACKER_TYPES).uniq.map { |type| [type.titleize, type] }
   end
 
   def self.search_near(lat, lng, radius_km = 5)

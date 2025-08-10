@@ -5,10 +5,11 @@ Dir[Rails.root.join('db/seeds/*.rb')].sort.each do |file|
 end
 
 # Create demo user
+demo_password = ENV['DEMO_PASSWORD'] || SecureRandom.hex(12)
 user = User.create!(
   email: 'demo@wanderistan.com',
-  password: 'password123',
-  password_confirmation: 'password123'
+  password: demo_password,
+  password_confirmation: demo_password
 )
 
 puts "Created demo user: #{user.email}"
@@ -166,4 +167,4 @@ if kerala_place
 end
 
 puts "Seed data created successfully!"
-puts "Demo user: demo@wanderistan.com / password123"
+puts "Demo user: demo@wanderistan.com / #{demo_password}"

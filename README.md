@@ -1,19 +1,18 @@
-# 🗺️ Wanderistan AI - AI-Powered Travel Planner
+# 🗺️ Wanderistan - Discover Your Next Adventure
 
 [![Ruby on Rails](https://img.shields.io/badge/Ruby%20on%20Rails-7.1.5-red.svg)](https://rubyonrails.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue.svg)](https://www.postgresql.org/)
 [![Mapbox](https://img.shields.io/badge/Mapbox-GL%20JS-lightblue.svg)](https://www.mapbox.com/)
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-green.svg)](https://openai.com/)
 
-**Wanderistan AI** is an intelligent travel planning platform that combines AI-powered itinerary generation with interactive maps and curated video content. Plan your perfect trip with smart recommendations, explore destinations on interactive maps, and discover travel videos from around the world.
+**Wanderistan** is a comprehensive travel planning platform that helps you create personalized itineraries with interactive maps and curated video content. Plan your perfect trip with detailed recommendations, explore destinations on beautiful interactive maps, and discover inspiring travel videos from around the world.
 
 ## ✨ Features
 
-### 🧠 AI-Powered Trip Planning
-- **Smart Itinerary Generation**: AI creates personalized day-by-day itineraries
+### 🧠 Intelligent Trip Planning
+- **Smart Itinerary Generation**: Creates personalized day-by-day itineraries based on your preferences
 - **Budget Estimation**: Realistic budget breakdowns for different destinations
 - **Travel Preferences**: Customize based on activity types, travel pace, and preferences
-- **Money-Saving Tips**: AI-generated tips to optimize your travel budget
+- **Money-Saving Tips**: Helpful tips to optimize your travel budget
 
 ### 🗺️ Interactive Map Experience
 - **Interactive Mapbox Integration**: Explore destinations on beautiful maps
@@ -49,7 +48,6 @@
 - **ERB**: Server-side templating
 
 ### External APIs
-- **OpenAI GPT-4**: AI-powered itinerary generation
 - **YouTube Data API v3**: Travel video integration
 - **Mapbox API**: Interactive map functionality
 
@@ -91,9 +89,6 @@ rails db:seed
 ### 4. Environment Configuration
 Create a `.env` file in the root directory:
 ```bash
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key_here
-
 # YouTube Configuration
 YOUTUBE_API_KEY=your_youtube_api_key_here
 
@@ -123,11 +118,6 @@ Visit `http://localhost:3000` to access the application.
 
 ## 🔧 API Setup
 
-### OpenAI API
-1. Sign up at [OpenAI](https://openai.com/)
-2. Get your API key from the dashboard
-3. Add to `.env` file as `OPENAI_API_KEY`
-
 ### YouTube Data API
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project
@@ -145,7 +135,7 @@ Visit `http://localhost:3000` to access the application.
 ### Creating a Trip
 1. Navigate to `/trips/planner`
 2. Enter your destination and preferences
-3. AI generates a personalized itinerary
+3. Generate a personalized itinerary based on your inputs
 4. Save your trip for later reference
 
 ### Exploring the Map
@@ -184,8 +174,8 @@ wanderistan/
 
 ## 🔍 Key Features Explained
 
-### AI Trip Planning
-The AI system uses OpenAI's GPT-4 to generate personalized itineraries based on:
+### Smart Trip Planning
+The platform generates personalized itineraries based on:
 - Destination preferences
 - Travel duration
 - Budget constraints
@@ -232,7 +222,6 @@ rails test:system
 heroku create your-app-name
 heroku addons:create heroku-postgresql
 heroku addons:create heroku-redis
-heroku config:set OPENAI_API_KEY=your_key
 heroku config:set YOUTUBE_API_KEY=your_key
 heroku config:set MAPBOX_API_KEY=your_key
 git push heroku master
@@ -240,8 +229,8 @@ git push heroku master
 
 ### Docker Deployment
 ```bash
-docker build -t wanderistan-ai .
-docker run -p 3000:3000 wanderistan-ai
+docker build -t wanderistan .
+docker run -p 3000:3000 wanderistan
 ```
 
 ## 🤝 Contributing
@@ -258,7 +247,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **OpenAI** for AI-powered itinerary generation
 - **YouTube** for travel video content
 - **Mapbox** for interactive map functionality
 - **Rails Community** for the amazing framework
@@ -267,7 +255,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 If you encounter any issues or have questions:
-1. Check the [Issues](https://github.com/gyansingh18/wanderistan-ai/issues) page
+1. Check the [Issues](https://github.com/gyansingh18/wanderistan/issues) page
 2. Create a new issue with detailed information
 3. Contact the maintainers
 
@@ -276,13 +264,13 @@ If you encounter any issues or have questions:
 - [ ] Real-time collaboration on trip planning
 - [ ] Social features (share trips, follow travelers)
 - [ ] Mobile app development
-- [ ] Advanced AI features (image recognition, voice planning)
+- [ ] Enhanced recommendation features
 - [ ] Integration with booking platforms
 - [ ] Offline map functionality
 - [ ] Multi-language support
 
 ---
 
-**Made with ❤️ by the Wanderistan AI Team**
+**Made with ❤️ by the Wanderistan Team**
 
-*Plan your next adventure with AI-powered intelligence!*
+*Plan your next adventure with intelligent recommendations!*

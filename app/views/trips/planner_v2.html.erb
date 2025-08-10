@@ -1,0 +1,865 @@
+<!-- Main Container -->
+<div class="planner-container">
+  <!-- Chat Interface -->
+  <div class="chat-section">
+    <!-- Quick Filters -->
+    <div class="filters">
+      <button class="filter-btn">
+        <i class="fas fa-map-marker-alt"></i>
+        Where
+      </button>
+      <button class="filter-btn">
+        <i class="fas fa-calendar"></i>
+        When
+      </button>
+      <button class="filter-btn">
+        <i class="fas fa-users"></i>
+        2 travelers
+      </button>
+      <button class="filter-btn">
+        <i class="fas fa-wallet"></i>
+        Budget
+      </button>
+      <!-- NEW: Toggle experimental backpacker features for A/B testing -->
+      <button class="filter-btn" id="toggle-experimental" title="Enable Backpacker Features">
+        <i class="fas fa-flask"></i>
+        Backpacker Mode
+      </button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="messages" id="messages">
+      <!-- Welcome Message -->
+      <div class="message ai">
+        <div class="message-content">
+          <p>Hi! 👋 I'm your AI travel planner. I can help you:</p>
+          <ul>
+            <li>Create personalized trip itineraries</li>
+            <li>Find the best places to visit</li>
+            <li>Suggest activities based on your interests</li>
+            <li>Provide local tips and recommendations</li>
+          </ul>
+          <p>Where would you like to go?</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="input-section">
+      <div class="input-wrapper">
+        <input type="text" id="userInput" placeholder="Type your message..." autocomplete="off">
+        <button id="sendButton">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Section -->
+  <div class="map-section">
+    <div id="map"></div>
+    <!-- NEW: Floating controls for community pins and smart route (modular) -->
+    <div id="map-controls" class="d-none">
+      <div class="control-card">
+        <div class="control-row">
+          <label><input type="checkbox" id="enable-community" checked> Community Pins</label>
+          <button id="add-pin" class="btn btn-sm btn-outline-primary">Add Pin</button>
+        </div>
+        <div class="control-row">
+          <label>Route Mode:</label>
+          <select id="route-mode" class="form-select form-select-sm">
+            <option value="fastest">Fastest</option>
+            <option value="scenic">Backpacker Smart Route</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label>Travel:</label>
+          <select id="travel-mode" class="form-select form-select-sm">
+            <option value="walk">Walking/Trek</option>
+            <option value="public">Public Transport</option>
+            <option value="hitchhike">Hitchhiking</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <label class="me-2">Budget/day:</label>
+          <span id="budget-day">₹0</span>
+        </div>
+        <div class="control-row">
+          <button id="clear-route" class="btn btn-sm btn-outline-secondary">Clear Route</button>
+          <button id="save-draft" class="btn btn-sm btn-primary">Save Draft</button>
+        </div>
+        <div id="route-summary" class="summary-card d-none"></div>
+      </div>
+    </div>
+    <div id="map-overlay" class="d-none">
+      <div class="overlay-card">
+        <h4>Map unavailable</h4>
+        <p>We could not load Mapbox. Please verify your MAPBOX_API_KEY and that it allows Styles & Geocoding for localhost.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.planner-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: calc(100vh - 56px);
+  background: white;
+}
+
+/* Chat Section */
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Filters */
+.filters {
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: white;
+  color: #374151;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #f9fafb;
+}
+
+.filter-btn i {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Messages */
+.messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  /* Prevent footer overlap and keep content readable */
+  max-height: calc(100vh - 56px - 56px - 80px); /* navbar + input + footer approx */
+}
+
+.message {
+  margin-bottom: 20px;
+  max-width: 85%;
+}
+
+.message.ai {
+  margin-right: auto;
+}
+
+.message.user {
+  margin-left: auto;
+}
+
+.message-content {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line; /* keep newlines */
+}
+
+.message.ai .message-content {
+  background: #e5f1ff;
+  color: #1a1a1a;
+}
+
+.message.user .message-content {
+  background: #f3f4f6;
+  color: #1a1a1a;
+  text-align: right;
+}
+
+.message-content ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.message-content li {
+  margin: 4px 0;
+}
+
+/* Input Section */
+.input-section {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  background: #f9fafb;
+}
+
+#userInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  padding: 8px 0;
+  outline: none;
+}
+
+#sendButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+#sendButton:hover {
+  background: #1d4ed8;
+}
+
+/* Map Section */
+.map-section {
+  position: relative;
+  min-height: 400px; /* ensure visible height even if parent sizing is off */
+  height: 100%;
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+  background: #e6f0ff; /* fallback bg so visibility is obvious */
+  width: 100%;
+  height: 100%;
+}
+
+#map-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+#map-overlay .overlay-card {
+  max-width: 420px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+  color: #111827;
+  text-align: center;
+}
+
+/* NEW: Backpacker controls styling */
+#map-controls {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+}
+.control-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  min-width: 240px;
+}
+.control-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.summary-card { font-size: 12px; line-height: 1.4; background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:8px; }
+
+/* Loading Animation */
+.typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: #e5f1ff;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.typing span {
+  width: 8px;
+  height: 8px;
+  background: #2563eb;
+  border-radius: 50%;
+  animation: typing 1s infinite;
+  opacity: 0.4;
+}
+
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+</style>
+
+<script>
+// Initialize after page load
+window.addEventListener('load', function() {
+  initializeMap();
+  setupEventListeners();
+  setupBackpackerToggles();
+});
+
+function initializeMap() {
+  const container = document.getElementById('map');
+  if (!container || !window.L) return;
+
+  // Create Leaflet map with OSM tiles
+  window.map = L.map('map', { zoomControl: false, worldCopyJump: true }).setView([20, 0], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(window.map);
+
+  L.control.zoom({ position: 'bottomright' }).addTo(window.map);
+
+  // Click handler for reverse geocode
+  window.map.on('click', async function(e) {
+    const coords = { lng: e.latlng.lng, lat: e.latlng.lat };
+    await reverseGeocode(coords);
+  });
+
+  // If experimental mode is on, load community pins for current viewport
+  if (window.__EXPERIMENTAL__) {
+    loadCommunityPins();
+  }
+}
+
+function setupEventListeners() {
+  const input = document.getElementById('userInput');
+  const sendButton = document.getElementById('sendButton');
+
+  input.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  sendButton.addEventListener('click', sendMessage);
+
+  // Handle filter button clicks
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const type = this.textContent.trim();
+      handleFilterClick(type);
+    });
+  });
+}
+
+// NEW: Feature toggles and lightweight handlers
+function setupBackpackerToggles() {
+  const toggle = document.getElementById('toggle-experimental');
+  if (!toggle) return;
+  toggle.addEventListener('click', () => {
+    window.__EXPERIMENTAL__ = !window.__EXPERIMENTAL__;
+    const controls = document.getElementById('map-controls');
+    if (window.__EXPERIMENTAL__) {
+      controls.classList.remove('d-none');
+      loadCommunityPins();
+    } else {
+      controls.classList.add('d-none');
+      clearCommunityPins();
+    }
+  });
+
+  // Add pin flow: drops a marker at center and prompts for details
+  const addPinBtn = document.getElementById('add-pin');
+  if (addPinBtn) {
+    addPinBtn.addEventListener('click', () => {
+      if (!window.map) return;
+      const center = window.map.getCenter();
+      const lat = center.lat; const lon = center.lng;
+      const name = prompt('Pin name (e.g., Hidden chai stall)');
+      if (!name) return;
+      const type = prompt('Type (food/stay/experience/transport)') || 'experience';
+      const price = prompt('Typical cost (number, optional)');
+      addCommunityPin({ name, poi_type: type, latitude: lat, longitude: lon, price });
+    });
+  }
+
+  const clearBtn = document.getElementById('clear-route');
+  if (clearBtn) clearBtn.addEventListener('click', () => { clearInlineRoute(); hideRouteSummary(); });
+
+  const saveBtn = document.getElementById('save-draft');
+  if (saveBtn) saveBtn.addEventListener('click', saveDraftRoute);
+}
+
+let communityLayer = null;
+function clearCommunityPins() {
+  if (communityLayer) {
+    window.map.removeLayer(communityLayer);
+    communityLayer = null;
+  }
+}
+
+async function loadCommunityPins() {
+  try {
+    if (!window.map) return;
+    const b = window.map.getBounds();
+    const bounds = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].join(',');
+    const res = await fetch(`/api/pois?bounds=${bounds}`);
+    if (!res.ok) return;
+    const geojson = await res.json();
+    clearCommunityPins();
+    communityLayer = L.geoJSON(geojson, {
+      pointToLayer: (feature, latlng) => L.marker(latlng),
+      onEachFeature: (feature, layer) => {
+        const p = feature.properties;
+        const badge = p.verified ? '✔️' : '🆕';
+        layer.bindPopup(`${badge} ${p.name}<br/>${p.description || ''}<br/>₹${p.price || 'N/A'}`);
+      }
+    }).addTo(window.map);
+  } catch (e) {
+    console.error('loadCommunityPins error', e);
+  }
+}
+
+// Minimal client-side create and like; can be moved to dedicated controller later
+async function addCommunityPin(poi) {
+  try {
+    // POST via a generic endpoint (would normally be Api::Pois#create). For now, fake client-side add.
+    const latlng = [poi.latitude, poi.longitude];
+    const m = L.marker(latlng).addTo(window.map);
+    m.bindPopup(`${poi.name} (draft)<br/>₹${poi.price || 'N/A'}`).openPopup();
+  } catch (e) {
+    console.error('addCommunityPin error', e);
+  }
+}
+
+function showTyping() {
+  const messages = document.getElementById('messages');
+  const typing = document.createElement('div');
+  typing.className = 'message ai typing-indicator';
+  typing.innerHTML = `
+    <div class="typing">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  `;
+  messages.appendChild(typing);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function hideTyping() {
+  const typing = document.querySelector('.typing-indicator');
+  if (typing) typing.remove();
+}
+
+function addMessage(content, isUser = false) {
+  const messages = document.getElementById('messages');
+  const message = document.createElement('div');
+  message.className = `message ${isUser ? 'user' : 'ai'}`;
+  message.innerHTML = `
+    <div class="message-content">
+      ${content}
+    </div>
+  `;
+  messages.appendChild(message);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const message = input.value.trim();
+
+  if (!message) return;
+
+  // Clear input
+  input.value = '';
+
+  // Add user message
+  addMessage(message, true);
+
+  // Show typing indicator
+  showTyping();
+
+  try {
+    // Send message to backend using the existing test_openai endpoint
+    const response = await fetch('/test_openai', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ prompt: message })
+    });
+
+    if (!response.ok) throw new Error('Failed to send message');
+
+    const data = await response.json();
+
+    // Hide typing indicator
+    hideTyping();
+
+    // Add AI response (sanitize basic markdown to plain text bullets)
+    if (data.success) {
+      const plain = sanitizeToPlainText(data.data)
+      addMessage(plain);
+
+      // Try to locate destination from user message and focus map
+      const coordsFromList = extractLocation(message);
+      if (coordsFromList) {
+        focusLocation({ lon: coordsFromList[0], lat: coordsFromList[1], name: message });
+      } else {
+        // Try extracting a destination from the user's message first
+        const userCandidate = extractCandidateLocation(message);
+        let loc = null;
+        if (userCandidate) {
+          loc = await forwardGeocode(userCandidate);
+        }
+        // If still not found, try the full message
+        if (!loc) {
+          loc = await forwardGeocode(message);
+        }
+        // If still not found, try extracting a candidate from the AI response text
+        if (!loc) {
+          const candidate = extractCandidateLocation(plain);
+          if (candidate) loc = await forwardGeocode(candidate);
+        }
+        if (loc) focusLocation(loc);
+      }
+
+      // Parse inline AI route if present and draw it on the map
+      const route = parseInlineRoute(plain);
+      if (route && Array.isArray(route) && route.length > 0) {
+        await drawInlineRoute(route);
+      }
+    } else {
+      addMessage('I apologize, but I encountered an error. Please try again.');
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+    hideTyping();
+    addMessage('I apologize, but I encountered an error. Please try again.');
+  }
+}
+
+function sanitizeToPlainText(text) {
+  if (!text) return '';
+  // Replace markdown headings ###, ##, # with line breaks
+  let t = text.replace(/^\s*#{1,6}\s*/gm, '');
+  // Replace bold/italics **, *, _ with plain text
+  t = t.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/_(.*?)_/g, '$1');
+  // Convert markdown bullets to simple bullets
+  t = t.replace(/^\s*[-•]\s+/gm, '• ');
+  // Collapse multiple blank lines
+  t = t.replace(/\n{3,}/g, '\n\n');
+  return t.trim();
+}
+
+function extractLocation(message) {
+  const locations = {
+    'tanzania': [35.7516, -6.3690],
+    'zanzibar': [39.1977, -6.1659],
+    'serengeti': [34.8333, -2.3333],
+    'kilimanjaro': [37.3556, -3.0674],
+    'dar es salaam': [39.2083, -6.7927],
+    'arusha': [36.6827, -3.3869]
+  };
+
+  const locationName = Object.keys(locations).find(loc =>
+    message.toLowerCase().includes(loc)
+  );
+
+  return locationName ? locations[locationName] : null;
+}
+
+// Heuristic extractor to find a location phrase in text (user or AI)
+function extractCandidateLocation(text) {
+  if (!text) return null;
+  // Quick country-specific hits first
+  const sl = text.match(/\bSri\s+Lanka\b/i);
+  if (sl) return 'Sri Lanka';
+
+  // Prefer quoted content: "..."
+  const quoted = text.match(/"([^\"]{2,80})"/);
+  if (quoted && quoted[1] && !isStopword(quoted[1])) return quoted[1];
+
+  // Look for sequences of Capitalized words (proper nouns)
+  const proper = text.match(/(?:^|[\s•-])([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,2})\b/g);
+  if (proper) {
+    for (const p of proper) {
+      const cand = p.trim();
+      if (cand && !isStopword(cand) && cand.length > 2) return cand;
+    }
+  }
+
+  // Common phrasing: plan a trip to X, go to X, in X, for X
+  const m = text.match(/\b(?:to|in|for|at)\s+([A-Za-z][A-Za-z\s,'-]{1,60})/i);
+  if (m && m[1]) {
+    // Trim trailing punctuation
+    const cand = m[1].replace(/[\.,;:!?\)]*$/, '').trim();
+    if (!isStopword(cand)) return cand;
+  }
+  return null;
+}
+
+function isStopword(s) {
+  const w = s.toLowerCase().trim();
+  const list = new Set([
+    'visit','time','best','plan','trip','trips','tips','visa','flights','flight','airport','airports',
+    'accommodations','accommodation','hotels','hotel','transportation','activities','activity',
+    'city','town','area','region','temples','museums','gardens','dates','duration','budget','consider',
+    'book','arrange','choose','stay','explore','decide','research','itinerary','recommendations','places','place'
+  ]);
+  return list.has(w);
+}
+
+function focusLocation(location) {
+  if (!window.map || !location) return;
+
+  const lat = location.lat ?? (Array.isArray(location) ? location[1] : null);
+  const lon = location.lon ?? (Array.isArray(location) ? location[0] : null);
+  const name = location.name || '';
+  const bounds = location.bounds;
+
+  if (bounds && Array.isArray(bounds) && bounds.length === 4) {
+    // Nominatim boundingbox: [south, north, west, east]
+    const sw = [parseFloat(bounds[0]), parseFloat(bounds[2])];
+    const ne = [parseFloat(bounds[1]), parseFloat(bounds[3])];
+    window.map.fitBounds([sw, ne], { padding: [30, 30], maxZoom: 8 });
+  } else if (lat != null && lon != null) {
+    // Leaflet flyTo signature: flyTo([lat, lon], zoom)
+    window.map.flyTo([lat, lon], 6, { animate: true, duration: 0.8 });
+  }
+
+  if (lat != null && lon != null) {
+    if (window.currentMarker) {
+      window.map.removeLayer(window.currentMarker);
+    }
+    window.currentMarker = L.marker([lat, lon]).addTo(window.map);
+    if (name) {
+      window.currentMarker.bindPopup(name, { closeButton: false }).openPopup();
+    }
+    // Update country code context to improve future geocoding relevance
+    updateCountryCode(lat, lon);
+  }
+}
+
+async function reverseGeocode(coords) {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`;
+    const response = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    if (!response.ok) throw new Error('Geocoding failed');
+    const data = await response.json();
+    const name = data.display_name;
+    if (name) {
+      if (window.currentMarker) {
+        window.map.removeLayer(window.currentMarker);
+      }
+      window.currentMarker = L.marker([coords.lat, coords.lng]).addTo(window.map);
+      addMessage(`Would you like to plan a trip to ${name}?`);
+      // Cache country code for scoped searches
+      if (data.address && data.address.country_code) {
+        window.__COUNTRY_CODE__ = (data.address.country_code || '').toLowerCase();
+      }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    addMessage('Sorry, I had trouble identifying that location. Please try again or type the location name.');
+  }
+}
+
+function handleFilterClick(type) {
+  switch (type.toLowerCase()) {
+    case 'where':
+      addMessage('Where would you like to go? You can type a location or click on the map.');
+      break;
+    case 'when':
+      addMessage('When are you planning to travel? Please specify your preferred dates.');
+      break;
+    case '2 travelers':
+      addMessage('How many people are traveling? This will help me customize the recommendations.');
+      break;
+    case 'budget':
+      addMessage('What\'s your budget range for this trip? This helps me suggest suitable options.');
+      break;
+  }
+}
+
+function showMapOverlay() {
+  const ov = document.getElementById('map-overlay');
+  if (ov) ov.classList.remove('d-none');
+}
+
+async function forwardGeocode(query) {
+  try {
+    const cc = window.__COUNTRY_CODE__ ? `&countrycodes=${encodeURIComponent(window.__COUNTRY_CODE__)}` : '';
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1&accept-language=en${cc}`;
+    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return null;
+
+    // Prefer administrative/place results (country, state, city, town, village, island)
+    const preferredTypes = new Set(['country','state','province','region','county','city','town','village','island','archipelago']);
+    let best = data.find(r => r.class === 'place' && preferredTypes.has(r.type))
+           || data.find(r => r.class === 'boundary' && r.type === 'administrative');
+    if (!best) return null; // avoid POIs like a shop named "visit"
+
+    const lat = parseFloat(best.lat);
+    const lon = parseFloat(best.lon);
+    const bounds = best.boundingbox; // [south, north, west, east]
+    const name = best.display_name;
+    return { lat, lon, bounds, name };
+  } catch (e) {
+    console.error('Forward geocoding error', e);
+    return null;
+  }
+}
+
+// Parse and draw route helpers
+function parseInlineRoute(text) {
+  const m = text.match(/ROUTE:\s*(.+)$/im);
+  if (!m) return null;
+  const seq = m[1];
+  const tokens = [];
+  const re = /\s*([^\[]+?)\s*-\s*\[([^\]]+)\]\s*-\s*>\s*([^\[]+?)(?=\s*-\s*\[[^\]]+\]\s*-\s*>|$)/g;
+  let match;
+  while ((match = re.exec(seq)) !== null) {
+    tokens.push({ from: match[1].trim(), mode: match[2].trim().toLowerCase(), to: match[3].trim() });
+  }
+  return tokens;
+}
+
+let routeLayer = null;
+let routeMarkers = [];
+function clearInlineRoute() {
+  if (routeLayer) { window.map.removeLayer(routeLayer); routeLayer = null; }
+  routeMarkers.forEach(m => window.map.removeLayer(m));
+  routeMarkers = [];
+}
+
+async function drawInlineRoute(legs) {
+  if (!window.map || !Array.isArray(legs) || legs.length === 0) return;
+  clearInlineRoute();
+
+  const names = Array.from(new Set(legs.flatMap(l => [l.from, l.to])));
+  const nameToCoord = {};
+  for (const n of names) {
+    const loc = await forwardGeocode(n);
+    if (loc) nameToCoord[n] = [loc.lat, loc.lon];
+  }
+
+  const lineCoords = [];
+  for (const leg of legs) {
+    const a = nameToCoord[leg.from];
+    const b = nameToCoord[leg.to];
+    if (!a || !b) continue;
+    if (lineCoords.length === 0) lineCoords.push(a);
+    lineCoords.push(b);
+
+    const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    const icon = transportIcon(leg.mode);
+    const marker = L.marker(mid, { icon }).bindPopup(`${leg.mode.toUpperCase()}: ${leg.from} → ${leg.to}`);
+    marker.addTo(window.map);
+    routeMarkers.push(marker);
+  }
+
+  if (lineCoords.length >= 2) {
+    routeLayer = L.polyline(lineCoords, { color: '#2563eb', weight: 4, opacity: 0.85 }).addTo(window.map);
+    window.map.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+  }
+
+  // Compute simple distances and duration estimates per leg and budget estimate
+  const legsSummary = [];
+  let totalKm = 0;
+  let totalMinutes = 0;
+  const costMap = { train: 3, bus: 2, public: 2, car: 8, drive: 8, plane: 25, flight: 25, ferry: 5, boat: 5, hike: 0, walk: 0, hitch: 0 };
+  const speedMap = { train: 60, bus: 40, public: 35, car: 70, drive: 70, plane: 700, flight: 700, ferry: 30, boat: 25, hike: 4, walk: 4, hitch: 45 };
+  for (const leg of legs) {
+    const a = nameToCoord[leg.from];
+    const b = nameToCoord[leg.to];
+    if (!a || !b) continue;
+    const km = haversineKm(a[0], a[1], b[0], b[1]);
+    const m = (leg.mode||'').toLowerCase();
+    const speed = speedMap[m] || 35; // km/h
+    const minutes = (km / speed) * 60;
+    totalKm += km; totalMinutes += minutes;
+    const cost = Math.round(km * (costMap[m] || 2)); // rough ₹ per km
+    legsSummary.push({ from: leg.from, to: leg.to, mode: leg.mode, km: km.toFixed(0), minutes: Math.round(minutes), cost });
+  }
+  showRouteSummary(legsSummary, totalKm, totalMinutes);
+}
+
+function transportIcon(mode) {
+  const m = (mode || '').toLowerCase();
+  const emoji = m.includes('train') ? '🚆'
+    : m.includes('bus') ? '🚌'
+    : m.includes('ferry') ? '⛴️'
+    : m.includes('boat') ? '⛵'
+    : m.includes('hike') || m.includes('walk') ? '🥾'
+    : m.includes('hitch') ? '👍'
+    : m.includes('car') || m.includes('drive') ? '🚗'
+    : m.includes('plane') || m.includes('flight') ? '✈️'
+    : '📍';
+  return L.divIcon({ html: `<div style="font-size:18px">${emoji}</div>`, className: 'transport-icon', iconSize: [18,18] });
+}
+
+function showRouteSummary(legs, totalKm, totalMinutes) {
+  const el = document.getElementById('route-summary');
+  if (!el) return;
+  if (!legs || legs.length === 0) { hideRouteSummary(); return; }
+  const hours = Math.floor(totalMinutes / 60);
+  const mins = Math.round(totalMinutes % 60);
+  const totalCost = legs.reduce((s, l) => s + l.cost, 0);
+  const rows = legs.map(l => `${l.from} → ${l.to} (${l.mode}): ${l.km} km • ~${l.minutes} min • ₹${l.cost}`).join('<br/>');
+  el.innerHTML = `<strong>Route summary</strong><br/>${rows}<br/><hr class="my-1"/>Total: ${totalKm.toFixed(0)} km • ~${hours}h ${mins}m • <strong>₹${totalCost}</strong>`;
+  el.classList.remove('d-none');
+}
+
+function hideRouteSummary() {
+  const el = document.getElementById('route-summary');
+  if (el) el.classList.add('d-none');
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+async function saveDraftRoute() {
+  try {
+    // For now, serialize the route polyline and markers to console (placeholder for future persistence)
+    console.log('Save draft route clicked');
+    alert('Draft saved (placeholder). We can wire this to Trips#create with polyline + legs summary.');
+  } catch (e) {
+    console.error('saveDraftRoute error', e);
+  }
+}
+</script>

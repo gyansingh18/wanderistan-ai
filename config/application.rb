@@ -5,8 +5,10 @@ require "rails/all"
 # Load dotenv only in development or test environment
 if ['development', 'test'].include? ENV['RAILS_ENV']
   require 'dotenv'
-  # Load the environment variables from the appropriate .env file
+  # Load root .env first (preferred), then config/<env>.env as fallback
+  root_env = File.expand_path('../../.env', __FILE__)
   env_file = File.expand_path("../#{Rails.env}.env", __FILE__)
+  Dotenv.load(root_env) if File.exist?(root_env)
   Dotenv.load(env_file) if File.exist?(env_file)
 end
 

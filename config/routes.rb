@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  namespace :api do
+    post '/chat', to: 'chat#create'
+  end
   # Devise routes for authentication
   devise_for :users
 
@@ -17,6 +20,8 @@ Rails.application.routes.draw do
   # AI Trip Planner
   get '/ai-planner', to: 'trips#planner', as: :planner
   post '/ai-planner', to: 'trips#generate_plan'
+  # Simple chat test endpoint used by the planner UI
+  post '/test_openai', to: 'trips#test_openai'
 
   # Explore routes
   get '/explore', to: 'places#explore', as: :explore
@@ -42,6 +47,12 @@ Rails.application.routes.draw do
       collection do
         get :search
         post :near_route
+        # Allow community search to include unverified pins
+        get :community_search
+      end
+      member do
+        # Lightweight like/upvote for community ranking
+        post :like
       end
     end
 

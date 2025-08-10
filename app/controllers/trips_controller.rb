@@ -54,15 +54,16 @@ class TripsController < ApplicationController
 
   def planner
     # Show the AI trip planner form - no authentication required
+    render 'planner_v2'
   end
 
   def test_openai
-    prompt = params[:prompt] || "Create a 2-day trip to Manali for 2 adults with budget ₹10,000"
+    prompt = params[:prompt].presence || "Hi"
+    # Use simple chat for the lightweight message UI
+    chat_response = OpenaiService.generate_travel_response(prompt)
 
-    ai_response = OpenaiService.generate_trip_itinerary(prompt)
-
-    if ai_response
-      render json: { success: true, data: ai_response }
+    if chat_response.present?
+      render json: { success: true, data: chat_response }
     else
       render json: { success: false, error: "Failed to generate AI response" }, status: :unprocessable_entity
     end
