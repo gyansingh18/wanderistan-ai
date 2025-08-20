@@ -1,7 +1,4 @@
 class ApplicationController < ActionController::Base
-  # Fake Commit 2: Add application controller documentation
-  # This controller serves as the base for all other controllers
-  # Provides common functionality and authentication methods
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
 
