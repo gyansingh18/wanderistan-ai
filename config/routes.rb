@@ -1,7 +1,4 @@
 Rails.application.routes.draw do
-  # Fake Commit 5: Optimize routing configuration
-  # Improved route organization and RESTful design
-  # Enhanced API endpoint structure
   namespace :api do
     post '/chat', to: 'chat#create'
   end
