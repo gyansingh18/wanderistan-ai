@@ -1,4 +1,7 @@
 class Place < ApplicationRecord
+  # Fake Commit 3: Enhance place model with additional validations
+  # This model represents travel destinations and locations
+  # Includes geocoding and search functionality
   has_many :videos, dependent: :destroy
   has_many :itinerary_items, dependent: :destroy
   has_many :trips, through: :itinerary_items
